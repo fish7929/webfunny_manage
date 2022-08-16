@@ -1,0 +1,37 @@
+{
+    "purchase": {
+      "purchaseCode": "",
+      "secretCode": ""
+    },
+    "domain": {
+      "localServerDomain": "localhost:8009",
+      "localAssetsDomain": "localhost:8008",
+      "localServerPort": "8009",
+      "localAssetsPort": "8008",
+      "mainDomain": ""
+    },
+    "mysqlConfig": {
+        "write": {
+          "ip": "47.105.132.73",
+          "port": "3306",
+          "dataBaseName": "webfunny_db_20220730221155174",
+          "userName": "webfunny",
+          "password": "12345678"
+        },
+        "read": []
+    },
+    "email": {
+      "useCusEmailSys": false,
+      "emailUser": "",
+      "emailPassword": ""
+    },
+    "messageQueue": false,
+    "openMonitor": true,
+    "logSaveDays": 8,
+    "business": {
+      "userStayTimeScope": {
+        "min": 100,
+        "max": 100000
+      }
+    }
+  }
