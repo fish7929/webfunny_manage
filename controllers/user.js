@@ -537,14 +537,14 @@ class UserController {
           content: contentArray,
           type: "sys",
           isRead: 0,
-          link: `http://${accountInfo.localAssetsDomain}/webfunny/teamList.html`
+          link: `http://${accountInfo.localAssetsDomain}/webfunny_center/teamList.html`
         })
         // 给管理员发送一封邮件
         const adminTitle = "用户注册通知"
         const adminContent = `
         <p>尊敬的管理员：</p>
         <p>您好，用户【${email}】正在申请注册webfunny账号，请及时处理！</p>
-        <p>点击链接处理：http://${accountInfo.localAssetsDomain}/webfunny/userList.html</p>
+        <p>点击链接处理：http://${accountInfo.localAssetsDomain}/webfunny_center/userList.html</p>
         <p>如有疑问，请联系作者，微信号：webfunny_2020</p>
         `
         UserController.sendEmail(adminUser[0].emailName, adminTitle, adminContent)

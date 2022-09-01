@@ -59,9 +59,19 @@ class TeamController {
         let param = JSON.parse(ctx.request.body);
         const { id } = param
 
+        const delRes = await TeamModel.deleteTeam(id)
+
+        if (delRes) {
+            ctx.response.status = 200;
+            ctx.body = statusCode.SUCCESS_200('团队删除成功', 0)
+        } else {
+            ctx.response.status = 412;
+            ctx.body = statusCode.ERROR_412('团队删除失败！')
+        }
+        
         // 删除前，先检查team下是否还有团队
-        const teamDetail = await TeamModel.getTeamDetail(id)
-        const webMonitorIds = teamDetail.webMonitorIds
+        // const teamDetail = await TeamModel.getTeamDetail(id)
+        // const webMonitorIds = teamDetail.webMonitorIds
         // const projects = await ProjectModel.getProjectByWebMonitorIds(webMonitorIds)
         // if (projects.length <= 0) {
         //     await TeamModel.deleteTeam(id)
@@ -124,11 +134,14 @@ class TeamController {
             })
 
             // const projects = await ProjectModel.getProjectListForStatus({webMonitorIds})
-            const projectRes = await Utils.postJson(`http://${monitor.serverDomain}${PROJECT_API.MONITOR_PROJECT_SIMPLE_LIST_BY_WEBMONITOR_IDS}`, {webMonitorIds}).catch((e) => {
-                if (typeof e === "object") {
-                    log.printError(JSON.stringify(e))
-                } 
-            })
+            // const projectRes = await Utils.postJson(`http://${monitor.serverDomain}${PROJECT_API.MONITOR_PROJECT_SIMPLE_LIST_BY_WEBMONITOR_IDS}`, {webMonitorIds}).catch((e) => {
+            //     if (typeof e === "object") {
+            //         log.printError(JSON.stringify(e))
+            //     } 
+            // })
+
+            const projectRes = await Utils.requestForTwoProtocol("post", `${monitor.serverDomain}${PROJECT_API.MONITOR_PROJECT_SIMPLE_LIST_BY_WEBMONITOR_IDS}`, {webMonitorIds})
+
             const projects = projectRes ? projectRes.data : []
 
             for (let m = 0; m < projects.length; m ++) {
@@ -140,11 +153,13 @@ class TeamController {
                 projectItem.viewerList = viewerList
             }
 
-            const eventProjectRes = await Utils.postJson(`http://${event.serverDomain}${PROJECT_API.EVENT_PROJECT_SIMPLE_LIST_BY_WEBMONITOR_IDS}`, {webMonitorIds}).catch((e) => {
-                if (typeof e === "object") {
-                    log.printError(JSON.stringify(e))
-                } 
-            })
+            // const eventProjectRes = await Utils.postJson(`http://${event.serverDomain}${PROJECT_API.EVENT_PROJECT_SIMPLE_LIST_BY_WEBMONITOR_IDS}`, {webMonitorIds}).catch((e) => {
+            //     if (typeof e === "object") {
+            //         log.printError(JSON.stringify(e))
+            //     } 
+            // })
+            const eventProjectRes = await Utils.requestForTwoProtocol("post", `${event.serverDomain}${PROJECT_API.EVENT_PROJECT_SIMPLE_LIST_BY_WEBMONITOR_IDS}`, {webMonitorIds})
+
             const eventProjects = eventProjectRes ? eventProjectRes.data : []
 
             for (let m = 0; m < eventProjects.length; m ++) {
@@ -309,23 +324,40 @@ class TeamController {
         const {webMonitorId, viewerList, sysType} = JSON.parse(ctx.request.body)
         const viewers = viewerList.toString()
         if (sysType === "monitor") {
-            await Utils.postJson(`http://${monitor.serverDomain}${PROJECT_API.MONITOR_ADD_VIEWERS}`, {webMonitorId, viewers}).then(() => {
-                ctx.response.status = 200;
-                ctx.body = statusCode.SUCCESS_200('success', 0)
-            }).catch((e) => {
-                log.printError(JSON.stringify(e))
+            // await Utils.postJson(`http://${monitor.serverDomain}${PROJECT_API.MONITOR_ADD_VIEWERS}`, {webMonitorId, viewers}).then(() => {
+            //     ctx.response.status = 200;
+            //     ctx.body = statusCode.SUCCESS_200('success', 0)
+            // }).catch((e) => {
+            //     log.printError(JSON.stringify(e))
+            //     ctx.response.status = 412;
+            //     ctx.body = statusCode.ERROR_412('观察者添加失败!')
+            // })
+            const addRes = await Utils.requestForTwoProtocol("post", `${monitor.serverDomain}${PROJECT_API.MONITOR_ADD_VIEWERS}`, {webMonitorId, viewers})
+            if (!addRes) {
                 ctx.response.status = 412;
                 ctx.body = statusCode.ERROR_412('观察者添加失败!')
-            })
+            } else {
+                ctx.response.status = 200;
+                ctx.body = statusCode.SUCCESS_200('success', 0)
+            }
+
         } else if (sysType === "event") {
-            await Utils.postJson(`http://${event.serverDomain}${PROJECT_API.EVENT_ADD_VIEWERS}`, {webMonitorId, viewers}).then(() => {
-                ctx.response.status = 200;
-                ctx.body = statusCode.SUCCESS_200('success', 0)
-            }).catch((e) => {
-                log.printError(JSON.stringify(e))
+            // await Utils.postJson(`http://${event.serverDomain}${PROJECT_API.EVENT_ADD_VIEWERS}`, {webMonitorId, viewers}).then(() => {
+            //     ctx.response.status = 200;
+            //     ctx.body = statusCode.SUCCESS_200('success', 0)
+            // }).catch((e) => {
+            //     log.printError(JSON.stringify(e))
+            //     ctx.response.status = 412;
+            //     ctx.body = statusCode.ERROR_412('观察者添加失败!')
+            // })
+            const addRes = await Utils.requestForTwoProtocol("post", `${event.serverDomain}${PROJECT_API.EVENT_ADD_VIEWERS}`, {webMonitorId, viewers})
+            if (!addRes) {
                 ctx.response.status = 412;
                 ctx.body = statusCode.ERROR_412('观察者添加失败!')
-            })
+            } else {
+                ctx.response.status = 200;
+                ctx.body = statusCode.SUCCESS_200('success', 0)
+            }
         }
         
     }
@@ -351,17 +383,26 @@ class TeamController {
         if (sysType === "monitor") {
             const tempId = id.split("-")[1]
             // 更新监控项目禁用状态
-            await Utils.postJson(`http://${monitor.serverDomain}${PROJECT_API.FORBIDDEN_PROJECT}`, {id: tempId}).then(() => {
+            // await Utils.postJson(`http://${monitor.serverDomain}${PROJECT_API.FORBIDDEN_PROJECT}`, {id: tempId}).then(() => {
+            //     ctx.response.status = 200;
+            //     ctx.body = statusCode.SUCCESS_200('success', 0)
+            // }).catch((e) => {
+            //     log.printError(JSON.stringify(e))
+            //     ctx.response.status = 412;
+            //     ctx.body = statusCode.ERROR_412('禁用失败')
+            // })
+
+            const forbiddenRes = await Utils.requestForTwoProtocol("post", `${monitor.serverDomain}${PROJECT_API.FORBIDDEN_PROJECT}`, {id: tempId})
+            if (!forbiddenRes) {
+                ctx.response.status = 412;
+                ctx.body = statusCode.ERROR_412('禁用失败!')
+            } else {
                 ctx.response.status = 200;
                 ctx.body = statusCode.SUCCESS_200('success', 0)
-            }).catch((e) => {
-                log.printError(JSON.stringify(e))
-                ctx.response.status = 412;
-                ctx.body = statusCode.ERROR_412('禁用失败')
-            })
+            }
         } else if (sysType === "event") {
             // 更新埋点项目禁用状态
-
+            
         }
     }
 
@@ -387,14 +428,23 @@ class TeamController {
         if (sysType === "monitor") {
             const tempId = id.split("-")[1]
             // 更新监控项目禁用状态
-            await Utils.postJson(`http://${monitor.serverDomain}${PROJECT_API.DELETE_PROJECT}`, {id: tempId}).then(() => {
+            // await Utils.postJson(`http://${monitor.serverDomain}${PROJECT_API.DELETE_PROJECT}`, {id: tempId}).then(() => {
+            //     ctx.response.status = 200;
+            //     ctx.body = statusCode.SUCCESS_200('success', 0)
+            // }).catch((e) => {
+            //     log.printError(JSON.stringify(e))
+            //     ctx.response.status = 412;
+            //     ctx.body = statusCode.ERROR_412('禁用失败')
+            // })
+
+            const delRes = await Utils.requestForTwoProtocol("post", `${monitor.serverDomain}${PROJECT_API.DELETE_PROJECT}`, {id: tempId})
+            if (!delRes) {
+                ctx.response.status = 412;
+                ctx.body = statusCode.ERROR_412('删除失败!')
+            } else {
                 ctx.response.status = 200;
                 ctx.body = statusCode.SUCCESS_200('success', 0)
-            }).catch((e) => {
-                log.printError(JSON.stringify(e))
-                ctx.response.status = 412;
-                ctx.body = statusCode.ERROR_412('禁用失败')
-            })
+            }
         } else if (sysType === "event") {
             // 更新埋点项目禁用状态
 

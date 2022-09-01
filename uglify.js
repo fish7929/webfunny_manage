@@ -4,7 +4,7 @@ var utils = require("./util/utils")
 var jsHamanUrl = "http://www.jshaman.com:800/submit_js_code"
 var jsHamanParams = {
     js_code: "",
-    vip_code: "sj2021-0705-iuha",
+    vip_code: "s2022-0807-shkkc",
     config: {
         "compact": true,
         "controlFlowFlattening": true,

@@ -98,11 +98,12 @@ const createRoutes = (router) => {
     router.post('/deleteProject', TeamController.deleteProject);
 
 
-
     // 根据teamId获取团队列表
     router.post("/applicationConfig", ApplicationConfigController.create)
     router.post("/updateSysConfigInfo", ApplicationConfigController.updateSysConfigInfo)
     router.post("/getSysConfigInfo", ApplicationConfigController.getSysConfigInfo)
+    router.post('/monitorBaseInfo', ApplicationConfigController.monitorBaseInfo);
+    router.post('/eventBaseInfo', ApplicationConfigController.eventBaseInfo);
 
 }
 
