@@ -288,13 +288,13 @@ class UserController {
     const data = {emailName, password: Utils.md5(decodePwd)}
     const userData = await UserModel.getUserForPwd(data)
     if (userData) {
-      const { userId, userType, registerStatus } = userData
+      const { userId, userType, registerStatus, nickname } = userData
       if (registerStatus === 0) {
         ctx.response.status = 200;
         ctx.body = statusCode.SUCCESS_200('此账号尚未激活，请联系管理员激活！', 1)
         return
       }
-      const accessToken = jwt.sign({userId, userType, emailName}, secret.sign, {expiresIn: 33 * 24 * 60 * 60 * 1000})
+      const accessToken = jwt.sign({userId, userType, emailName, nickname}, secret.sign, {expiresIn: 33 * 24 * 60 * 60 * 1000})
       UserController.setValidateCode()
 
       // 生成好的token存入数据库，如果已存在userId，则更新
@@ -331,13 +331,13 @@ class UserController {
     const data = {emailName, password: Utils.md5(decodePwd)}
     const userData = await UserModel.getUserForPwd(data)
     if (userData) {
-      const { userId, userType, registerStatus } = userData
+      const { userId, userType, registerStatus, nickname } = userData
       if (registerStatus === 0) {
         ctx.response.status = 200;
         ctx.body = statusCode.SUCCESS_200('此账号尚未激活，请联系管理员激活！', 1)
         return
       }
-      const accessToken = jwt.sign({userId, userType, emailName}, secret.sign, {expiresIn: 33 * 24 * 60 * 60 * 1000})
+      const accessToken = jwt.sign({userId, userType, emailName, nickname}, secret.sign, {expiresIn: 33 * 24 * 60 * 60 * 1000})
       UserController.setValidateCode()
 
       // 生成好的token存入数据库，如果已存在userId，则更新
