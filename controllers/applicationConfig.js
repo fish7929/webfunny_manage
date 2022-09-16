@@ -2,6 +2,7 @@
 const ApplicationConfigModel = require('../modules/applicationConfig')
 const statusCode = require('../util/status-code')
 const Utils = require('../util/utils');
+var { accountInfo } = require("../config/AccountConfig")
 const Consts = require('../config/consts')
 const { PROJECT_API } = Consts
 //delete//
@@ -68,13 +69,19 @@ class ApplicationConfigController {
      * @returns {Promise.<void>}
      */
     static async getSysConfigInfo(ctx) {
-        let param = JSON.parse(ctx.request.body);
-
-        // 先检查对应配置是否存在
-        const checkRes = await ApplicationConfigModel.getAllApplicationConfig()
-
+        const { monitorServerDomain, monitorAssetsDomain, eventServerDomain, eventAssetsDomain } = accountInfo
+        const res = {
+            monitor: {
+                serverDomain: monitorServerDomain,
+                adminDomain: monitorAssetsDomain,
+            },
+            event: {
+                serverDomain: eventServerDomain,
+                adminDomain: eventAssetsDomain,
+            }
+        }
         ctx.response.status = 200;
-        ctx.body = statusCode.SUCCESS_200('创建信息成功', checkRes)
+        ctx.body = statusCode.SUCCESS_200('创建信息成功', res)
     }
     /**
      * 获取基础配置

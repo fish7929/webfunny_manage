@@ -10,6 +10,14 @@
       "localAssetsPort": "8008",
       "mainDomain": ""
     },
+    "monitorDomain": {
+      "localServerDomain": "localhost:8011",
+      "localAssetsDomain": "localhost:8010"
+    },
+    "eventDomain": {
+      "localServerDomain": "localhost:8015",
+      "localAssetsDomain": "localhost:8014"
+    },
     "mysqlConfig": {
         "write": {
           "ip": "47.105.132.73",

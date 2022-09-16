@@ -40,6 +40,16 @@ class UserTokenController {
         ctx.response.status = 200;
         ctx.body = statusCode.SUCCESS_200('创建信息成功', userTokenDetail)
     }
+    /**
+     * 检查token是否有效
+     * @param ctx
+     * @returns {Promise.<void>}
+     */
+    static async checkToken(ctx) {
+        // 能进入这个方法，就说明token有效
+        ctx.response.status = 200;
+        ctx.body = statusCode.SUCCESS_200('Token验证通过！', 0)
+    }
 }
 //exports//
 module.exports = UserTokenController

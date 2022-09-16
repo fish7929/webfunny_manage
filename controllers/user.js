@@ -807,7 +807,7 @@ class UserController {
   }
 
   /**
-   * 检查token是否有效
+   * 检查sso的token是否有效
    * @param ctx
    * @returns {Promise.<void>}
    */
@@ -833,6 +833,7 @@ class UserController {
       ctx.body = statusCode.SUCCESS_200('Token验证通过！', 0)
     })
   }
+
 }
 //exports//
 module.exports = UserController

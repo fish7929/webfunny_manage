@@ -196,6 +196,34 @@ class TeamController {
         ctx.body = statusCode.SUCCESS_200('success', res)
     }
 
+    static async getSimpleTeamList(ctx) {
+        let userId = ""
+        let userType = ""
+        if (ctx.user) {
+            userId = ctx.user.userId
+            userType = ctx.user.userType
+        } else {
+            const param = ctx.request.body
+            userId = param.userId
+            userType = param.userType
+        }
+        const res = await TeamModel.getTeamList(userId, userType)
+        for (let i = 0; i < res.length; i ++) {
+            const team = res[i]
+            const { leaderId, members, webMonitorIds } = team
+            const users = await UserModel.getUserListByMembers(members)
+            team.members = users
+            users.forEach((user) => {
+                if (user.userId == leaderId) {
+                    team.leader = user
+                    return false
+                }
+            })
+        }
+        ctx.response.status = 200;
+        ctx.body = statusCode.SUCCESS_200('success', res)
+    }
+
     static async getTeamListWithoutToken(ctx) {
         const param = ctx.request.body
         const { userId, userType } = param
@@ -311,9 +339,11 @@ class TeamController {
         ctx.body = statusCode.SUCCESS_200('success', teamResDetail)
     }
     static async updateTeam(ctx) {
-        let param = ctx.request.body
+        let param = JSON.parse(ctx.request.body)
         const { id, webMonitorIds } = param
-        await TeamModel.updateTeam(id, {webMonitorIds})
+        const teamResDetail = await TeamModel.getTeamDetail(id)
+        const finalWebMonitorIds = teamResDetail.webMonitorIds + "," + webMonitorIds
+        await TeamModel.updateTeam(id, {webMonitorIds: finalWebMonitorIds})
         ctx.response.status = 200;
         ctx.body = statusCode.SUCCESS_200('success', 0)
     }
@@ -361,6 +391,26 @@ class TeamController {
         }
         
     }
+    static async forbiddenRightCheck(ctx) {
+        let param = JSON.parse(ctx.request.body)
+        const { id, webMonitorId, sysType } = param
+        const {userId, userType} = ctx.user
+        // 判断这个人是不是管理员, 团长
+        let leaderId = ""
+        const teamRes = await TeamModel.getTeamMembersByWebMonitorId(webMonitorId)
+        if (teamRes && teamRes.length) {
+            leaderId = teamRes[0].leaderId
+        }
+        if (!(userType === "superAdmin" || userType === "admin" || leaderId === userId)) {
+            ctx.response.status = 403;
+            ctx.body = statusCode.ERROR_403('你没有权限执行此操作！');
+            return
+        }
+        ctx.response.status = 200;
+        ctx.body = statusCode.SUCCESS_200('success', 0)
+    }
+
+
     static async forbiddenProject(ctx) {
         let param = JSON.parse(ctx.request.body)
         const { id, webMonitorId, sysType } = param
@@ -405,7 +455,25 @@ class TeamController {
             
         }
     }
+    static async deleteProjectRightCheck(ctx) {
+        let param = JSON.parse(ctx.request.body)
+        const { id, webMonitorId, sysType } = param
+        const {userId, userType} = ctx.user
+        // 判断这个人是不是管理员, 团长
+        let leaderId = ""
+        const teamRes = await TeamModel.getTeamMembersByWebMonitorId(webMonitorId)
+        if (teamRes && teamRes.length) {
+            leaderId = teamRes[0].leaderId
+        }
+        if (!(userType === "superAdmin" || userType === "admin" || leaderId === userId)) {
+            ctx.response.status = 403;
+            ctx.body = statusCode.ERROR_403('你没有权限执行此操作！');
+            return
+        }
 
+        ctx.response.status = 200;
+        ctx.body = statusCode.SUCCESS_200('success', 0)
+    }
     static async deleteProject(ctx) {
         let param = JSON.parse(ctx.request.body)
         const { id, webMonitorId, sysType } = param
