@@ -11,7 +11,8 @@
     "restart": "pm2 stop webfunny | pm2 delete webfunny | npm run prd",
     "prd_restart": "pm2 restart webfunny",
     "publish": "node uglify.js",
-    "table_config": "node table_config.js"
+    "table_config": "node table_config.js",
+    "wiki": "rm -r routes/api_wiki && node routes/createWiki.js"
   },
   "dependencies": {
     "amqplib": "^0.8.0",

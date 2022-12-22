@@ -271,7 +271,30 @@ class UserController {
    */
   static async login(ctx) {
     const param = JSON.parse(ctx.request.body)
-    const { emailName, password, code } = param
+    const { emailName, password, code, webfunnyToken } = param
+
+    const userInfo = await UserModel.getUserDetailByEmail(emailName)
+
+    let isTokenValid = false
+    // 判断token是否在数据库，且是否有效
+    const verify = jwt.verify
+    const tokenRes = await UserTokenModel.checkTokenExist(userInfo.userId, webfunnyToken)
+    if (tokenRes) {
+      // 如果token存在，则验证token是否合法
+      await verify(webfunnyToken, secret.sign, async (err, decode) => {
+        if (err) {
+          isTokenValid = false
+        } else {
+          isTokenValid = true
+        }
+      })
+    }
+    if (isTokenValid) {
+      ctx.response.status = 200;
+      ctx.body = statusCode.SUCCESS_200('登录成功', webfunnyToken)
+      return
+    }
+
     const decodePwd = Utils.b64DecodeUnicode(password).split("").reverse().join("")
     // const loginValidateCode = global.monitorInfo.loginValidateCode.toLowerCase()
     const loginValidateCodeRes = await ConfigModel.getConfigByConfigName("loginValidateCode")

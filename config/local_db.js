@@ -2,8 +2,15 @@ const Sequelize = require('sequelize');
 const { accountInfo } = require('./AccountConfig');
 
 const {write, read} = accountInfo.mysqlConfig;
+
+const readArray = []
+if (read && read.length) {
+  read.forEach((item) => {
+    readArray.push({host: item.ip, username: item.userName, password: item.password})
+  })
+}
 const replication = {
-  read: read,
+  read: readArray,
   write: { host: write.ip, username: write.userName, password: write.password }
 }
 const configList = {
@@ -28,13 +35,18 @@ const configList = {
   },
   timezone: '+08:00' //东八时区
 }
+let sequelize = null
 if (read && read.length > 0) {
   configList.replication = replication
+  sequelize = new Sequelize(write.dataBaseName, null, null, {
+    ...configList
+  })
+} else {
+  // 下一个迭代数据库
+  sequelize = new Sequelize(write.dataBaseName, write.userName, write.password, {
+    ...configList
+  })
 }
-// 下一个迭代数据库
-const sequelizeNext = new Sequelize(write.dataBaseName, write.userName, write.password, {
-  ...configList
-});
 
 const emailConfig = {
   user: "jiang1125712@163.com", // generated ethereal user
@@ -45,7 +57,7 @@ const defaultUser = {
   pass: "123456" // generated ethereal password
 }
 module.exports = {
-  sequelizeNext,
+  sequelizeNext: sequelize,
   emailConfig,
   defaultUser
 }

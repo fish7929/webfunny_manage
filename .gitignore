@@ -8,6 +8,7 @@ dist
 .idea/
 .vscode/
 logs/
+api_wiki/
 varsion.js
 schema_temp/
 lib/upload*

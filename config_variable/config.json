@@ -20,11 +20,11 @@
     },
     "mysqlConfig": {
         "write": {
-          "ip": "47.105.132.73",
+          "ip": "81.68.82.247",
           "port": "3306",
-          "dataBaseName": "webfunny_db_20220730221155174",
-          "userName": "webfunny",
-          "password": "12345678"
+          "dataBaseName": "webfunny_db",
+          "userName": "root",
+          "password": "!sj@dd123j_"
         },
         "read": []
     },

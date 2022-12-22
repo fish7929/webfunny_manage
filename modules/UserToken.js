@@ -68,6 +68,20 @@ class UserTokenModel {
     let sql = "select userId, accessToken from UserToken"
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT})
   }
+
+  /**
+   * 检查token是否存在
+   * @param userId  UserToken的userId
+   * @returns {Promise<Model>}
+   */
+  static async checkTokenExist(userId, accessToken) {
+    return await UserToken.findOne({
+      where: {
+        userId,
+        accessToken,
+      },
+    })
+  }
 }
 //exports//
 module.exports = UserTokenModel

@@ -147,6 +147,19 @@ class UserModel {
   }
 
   /**
+   * 根据属性获取User详情数据
+   * @param id  User的ID
+   * @returns {Promise<Model>}
+   */
+  static async getUserDetailByEmail(emailName) {
+    return await User.findOne({
+      where: {
+        emailName,
+      },
+    })
+  }
+
+  /**
    * 根据用户名密码
    * @param id  User的ID
    * @returns {Promise<Model>}
