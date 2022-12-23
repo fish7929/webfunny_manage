@@ -324,13 +324,6 @@ class TeamController {
         ctx.response.status = 200;
         ctx.body = statusCode.SUCCESS_200('success', teamList)
     }
-    static async findTeamListByTeamId(ctx) {
-        let param = ctx.request.body
-        const { userId } = param
-        const teamList = await TeamModel.findTeamListByTeamId(userId)
-        ctx.response.status = 200;
-        ctx.body = statusCode.SUCCESS_200('success', teamList)
-    }
     static async getTeamDetail(ctx) {
         let param = ctx.request.body
         const { chooseTeamId } = param
