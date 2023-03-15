@@ -273,28 +273,6 @@ class UserController {
     const param = JSON.parse(ctx.request.body)
     const { emailName, password, code, webfunnyToken } = param
 
-    const userInfo = await UserModel.getUserDetailByEmail(emailName)
-
-    let isTokenValid = false
-    // 判断token是否在数据库，且是否有效
-    const verify = jwt.verify
-    const tokenRes = await UserTokenModel.checkTokenExist(userInfo.userId, webfunnyToken)
-    if (tokenRes) {
-      // 如果token存在，则验证token是否合法
-      await verify(webfunnyToken, secret.sign, async (err, decode) => {
-        if (err) {
-          isTokenValid = false
-        } else {
-          isTokenValid = true
-        }
-      })
-    }
-    if (isTokenValid) {
-      ctx.response.status = 200;
-      ctx.body = statusCode.SUCCESS_200('登录成功', webfunnyToken)
-      return
-    }
-
     const decodePwd = Utils.b64DecodeUnicode(password).split("").reverse().join("")
     // const loginValidateCode = global.monitorInfo.loginValidateCode.toLowerCase()
     const loginValidateCodeRes = await ConfigModel.getConfigByConfigName("loginValidateCode")
@@ -317,6 +295,31 @@ class UserController {
         ctx.body = statusCode.SUCCESS_200('此账号尚未激活，请联系管理员激活！', 1)
         return
       }
+      
+      // 判断token是否在数据库，且是否有效   开始
+      // const userInfo = await UserModel.getUserDetailByEmail(emailName)
+
+      // let isTokenValid = false
+      // const verify = jwt.verify
+      // const tokenRes = await UserTokenModel.checkTokenExist(userInfo.userId, webfunnyToken)
+      // if (tokenRes) {
+      //   // 如果token存在，则验证token是否合法
+      //   await verify(webfunnyToken, secret.sign, async (err, decode) => {
+      //     if (err) {
+      //       isTokenValid = false
+      //     } else {
+      //       isTokenValid = true
+      //     }
+      //   })
+      // }
+      // if (isTokenValid) {
+      //   ctx.response.status = 200;
+      //   ctx.body = statusCode.SUCCESS_200('登录成功', webfunnyToken)
+      //   return
+      // }
+      // 判断token是否在数据库，且是否有效   结束
+
+      // 如果数据库里的token是无效的，则重新生成
       const accessToken = jwt.sign({userId, userType, emailName, nickname}, secret.sign, {expiresIn: 33 * 24 * 60 * 60 * 1000})
       UserController.setValidateCode()
 
@@ -341,7 +344,25 @@ class UserController {
   }
 
   /**
-   * 登录并创建token
+   * 登出
+   * @param ctx
+   * @returns {Promise.<void>}
+   */
+  static async logout(ctx) {
+    const param = JSON.parse(ctx.request.body)
+    const { userId } = param
+
+    // 如有token则设置为空，没有
+    const userTokenInfo = await UserTokenModel.getUserTokenDetail(userId)
+    if (userTokenInfo) {
+      await UserTokenModel.updateUserToken(userId, {...userTokenInfo, accessToken: ""})
+    }
+    ctx.response.status = 200;
+    ctx.body = statusCode.SUCCESS_200('登出成功', 0)
+  }
+
+  /**
+   * api登录并创建token
    * @param ctx
    * @returns {Promise.<void>}
    */
@@ -474,9 +495,6 @@ class UserController {
       return
     }
 
-    // 记录注册邮箱
-    Utils.postJson("http://www.webfunny.cn/config/recordEmail", {email, purchaseCode: accountInfo.purchaseCode}).catch((e) => {})
-
     let adminData = await UserModel.getAdminByType("admin")
 
     if (!adminData) {
@@ -509,6 +527,9 @@ class UserController {
     const userId = Utils.getUuid()
     const avatar = Math.floor(Math.random() * 10)
     const data = {nickname: name, emailName: email, phone, password: Utils.md5(decodePwd), userId, userType: "customer", registerStatus: 0, avatar}
+
+    // 记录注册邮箱
+    Utils.postJson("http://www.webfunny.cn/config/recordEmail", {email, purchaseCode: accountInfo.purchaseCode, source: "center-register"}).catch((e) => {})
     
     const registerEmailCodeCheckError = global.monitorInfo.registerEmailCodeCheckError
     if (registerEmailCodeCheckError[email] >= 3) {

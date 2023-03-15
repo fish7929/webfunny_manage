@@ -17,6 +17,8 @@ const createRoutes = (router) => {
      */
     // 登录
     router.post('/login', UserController.login);
+    // 登出
+    router.post('/logout', UserController.logout);
     // API登录
     router.post('/loginForApi', UserController.loginForApi);
     // 重置验证码

@@ -13,3 +13,4 @@ varsion.js
 schema_temp/
 lib/upload*
 .eslintrc
+*.zip
