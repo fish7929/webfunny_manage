@@ -41,5 +41,15 @@
         "min": 100,
         "max": 100000
       }
+    },
+    "ssoCheckUrl": "http://www.webfunny.cn/config/checkSsoToken",
+    "activationRequired": false,
+    "emailNeeded": {
+      "need": true,
+      "requireVerify": true
+    },
+    "phoneNeeded": {
+      "need": true,
+      "requireVerify": false
     }
   }

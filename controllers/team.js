@@ -35,9 +35,9 @@ class TeamController {
         const { teamName } = param
         const { userId } = ctx.user
         const team = {teamName, leaderId: userId, members: userId, webMonitorIds: ""}
-        await TeamModel.createTeam(team);
+        const teamRes = await TeamModel.createTeam(team);
         ctx.response.status = 200;
-        ctx.body = statusCode.SUCCESS_200('创建信息成功', 0)
+        ctx.body = statusCode.SUCCESS_200('创建信息成功', teamRes)
     }
 
     static async createNewTeamForApi(ctx) {

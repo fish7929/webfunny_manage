@@ -69,7 +69,7 @@ class ApplicationConfigController {
      * @returns {Promise.<void>}
      */
     static async getSysConfigInfo(ctx) {
-        const { monitorServerDomain, monitorAssetsDomain, eventServerDomain, eventAssetsDomain } = accountInfo
+        const { monitorServerDomain, monitorAssetsDomain, eventServerDomain, eventAssetsDomain, emailNeeded, phoneNeeded, activationRequired } = accountInfo
         const res = {
             monitor: {
                 serverDomain: monitorServerDomain,
@@ -78,7 +78,10 @@ class ApplicationConfigController {
             event: {
                 serverDomain: eventServerDomain,
                 adminDomain: eventAssetsDomain,
-            }
+            },
+            emailNeeded,
+            phoneNeeded,
+            activationRequired
         }
         ctx.response.status = 200;
         ctx.body = statusCode.SUCCESS_200('创建信息成功', res)

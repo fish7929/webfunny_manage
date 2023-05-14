@@ -197,6 +197,24 @@ class UserModel {
     })
   }
   /**
+   * 根据手机号或者邮箱，检查账号是否已经存在
+   * @param phone, email
+   * @returns {Promise<Model>}
+   */
+  static async checkUserByPhoneOrEmail(phone, email) {
+    // let sql = "select count(id) as count from User where userType='superAdmin'"
+    let whereSql = ""
+    if (phone && email) {
+      whereSql = `phone='${phone}' or emailName='${email}'`
+    } else if (phone) {
+      whereSql = `phone='${phone}'`
+    } else if (email) {
+      whereSql = `emailName='${email}'`
+    }
+    let sql = `select * from User where ${whereSql}`
+    return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT})
+  }
+  /**
    * 判断是否是管理员账号
    * @param id  User的ID
    * @returns {Promise<Model>}

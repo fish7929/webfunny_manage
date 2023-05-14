@@ -12,6 +12,7 @@ const CusUtils = require('../util_cus')
 const AccountConfig = require('../config/AccountConfig')
 const { USER_INFO } = require('../config/consts')
 const { accountInfo } = AccountConfig
+const log = require("../config/log")
 //delete//
 
 class UserController {
@@ -286,7 +287,14 @@ class UserController {
     }
 
     // registerStatus = 1 代表激活状态
-    const data = {emailName, password: Utils.md5(decodePwd)}
+    const data = {password: Utils.md5(decodePwd)}
+    // 判断emailName是手机号，还是邮箱
+    const phoneReg = /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/
+    if (phoneReg.test(emailName)) {
+      data.phone = emailName
+    } else {
+      data.emailName = emailName
+    }
     const userData = await UserModel.getUserForPwd(data)
     if (userData) {
       const { userId, userType, registerStatus, nickname } = userData
@@ -522,14 +530,16 @@ class UserController {
    */
   static async register(ctx) {
     const param = Utils.parseQs(ctx.request.url)
-    const { name, email, phone, password, emailCode } = param
+    const { name, email = "", phone = "", password, emailCode } = param
     const decodePwd = Utils.b64DecodeUnicode(password).split("").reverse().join("")
     const userId = Utils.getUuid()
     const avatar = Math.floor(Math.random() * 10)
-    const data = {nickname: name, emailName: email, phone, password: Utils.md5(decodePwd), userId, userType: "customer", registerStatus: 0, avatar}
+    // 注册用户是否需要激活
+    const registerStatus = accountInfo.activationRequired === true ? 0 : 1
+    const data = {nickname: name, emailName: email, phone, password: Utils.md5(decodePwd), userId, userType: "customer", registerStatus, avatar}
 
     // 记录注册邮箱
-    Utils.postJson("http://www.webfunny.cn/config/recordEmail", {email, purchaseCode: accountInfo.purchaseCode, source: "center-register"}).catch((e) => {})
+    Utils.postJson("http://www.webfunny.cn/config/recordEmail", {phone, email, purchaseCode: accountInfo.purchaseCode, source: "center-register"}).catch((e) => {})
     
     const registerEmailCodeCheckError = global.monitorInfo.registerEmailCodeCheckError
     if (registerEmailCodeCheckError[email] >= 3) {
@@ -858,24 +868,36 @@ class UserController {
   static async checkSsoToken(ctx) {
     const param = JSON.parse(ctx.request.body)
     const { token } = param
-
-    // 判断库里是否有这个token
-    const userTokenDetail = await UserTokenModel.getUserTokenDetailByToken(token)
-    if (!userTokenDetail) {
-        ctx.response.status = 412;
-        ctx.body = statusCode.ERROR_412("Token无效或已过期！");
-        return
+    const ssoInfo = await Utils.postJson(accountInfo.ssoCheckUrl, {token})
+    if (!ssoInfo) {
+      ctx.response.status = 500;
+      ctx.body = statusCode.ERROR_500('Token验证无效1！', 1)
+      return
     }
-    // 第二步，判断token是否合法
-    await jwt.verify(token, secret.sign, async (err) => {
-      if (err) {
-        ctx.response.status = 412;
-        ctx.body = statusCode.ERROR_412("Token无效或已过期！");
-        return
-      }
-      ctx.response.status = 200;
-      ctx.body = statusCode.SUCCESS_200('Token验证通过！', 0)
-    })
+    const { phone, email } = ssoInfo.data
+    // 检查phone, email是否在本系统中
+    // 这里有隐患，不同账号使用了同一个手机号，有可能导致两个账号相互登录。 解决办法，在注册的时候限制邮箱和手机号都只能使用一次
+    const existUsers = await UserModel.checkUserByPhoneOrEmail(phone, email)
+    if (!existUsers || !existUsers.length) {
+      ctx.response.status = 500;
+      ctx.body = statusCode.ERROR_500('Token验证无效2！', 1)
+      return
+    }
+    const { userId, userType, emailName, nickname } = existUsers[0]
+    // 账号存在，则说明账号有效，生成登录token
+    const accessToken = jwt.sign({userId, userType, emailName, nickname}, secret.sign, {expiresIn: 33 * 24 * 60 * 60 * 1000})
+
+    // 生成好的token存入数据库，如果已存在userId，则更新
+    const userTokenInfo = await UserTokenModel.getUserTokenDetail(userId)
+    if (userTokenInfo) {
+      await UserTokenModel.updateUserToken(userId, {...userTokenInfo, accessToken})
+    } else {
+      await UserTokenModel.createUserToken({
+        userId, accessToken
+      })
+    }
+    ctx.response.status = 200;
+    ctx.body = statusCode.SUCCESS_200('Token验证通过3！', accessToken)
   }
 
 }
