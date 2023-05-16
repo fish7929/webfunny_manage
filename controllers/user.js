@@ -1,4 +1,5 @@
 //delete//
+const TeamModel = require('../modules/team')
 const UserModel = require('../modules/user')
 const UserTokenModel = require('../modules/UserToken')
 const MessageModel = require('../modules/message')
@@ -530,7 +531,7 @@ class UserController {
    */
   static async register(ctx) {
     const param = Utils.parseQs(ctx.request.url)
-    const { name, email = "", phone = "", password, emailCode } = param
+    const { name, email = "", phone = "", password, emailCode, teamName = "xx团队" } = param
     const decodePwd = Utils.b64DecodeUnicode(password).split("").reverse().join("")
     const userId = Utils.getUuid()
     const avatar = Math.floor(Math.random() * 10)
@@ -568,7 +569,9 @@ class UserController {
       ctx.body = statusCode.SUCCESS_200('邮箱已存在！', 1)
       return
     }
-
+    // 创建团队
+    const team = {teamName: teamName, leaderId: userId, members: userId, webMonitorIds: ""}
+    TeamModel.createTeam(team);
     /* 判断参数是否合法 */
     if (data.nickname) {
       let ret = await UserModel.createUser(data);
@@ -618,7 +621,7 @@ class UserController {
    * @returns {Promise.<void>}
    */
   static async registerForApi(ctx) {
-    const { name, email, phone, password } = ctx.request.body
+    const { name, email, phone, password, company = "xx团队" } = ctx.request.body
     const decodePwd = password
     const userId = Utils.getUuid()
     const avatar = Math.floor(Math.random() * 10)
@@ -631,6 +634,10 @@ class UserController {
       ctx.body = statusCode.ERROR_412('邮箱已存在！', 1)
       return
     }
+
+    // 创建团队
+    const team = {teamName: company, leaderId: userId, members: userId, webMonitorIds: ""}
+    TeamModel.createTeam(team);
 
     /* 判断参数是否合法 */
     if (data.nickname && data.emailName && data.password) {
