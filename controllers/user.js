@@ -531,7 +531,7 @@ class UserController {
    */
   static async register(ctx) {
     const param = Utils.parseQs(ctx.request.url)
-    const { name, email = "", phone = "", password, emailCode, teamName = "xx团队" } = param
+    const { name, email = "", phone = "", password, emailCode } = param
     const decodePwd = Utils.b64DecodeUnicode(password).split("").reverse().join("")
     const userId = Utils.getUuid()
     const avatar = Math.floor(Math.random() * 10)
@@ -570,7 +570,7 @@ class UserController {
       return
     }
     // 创建团队
-    const team = {teamName: teamName, leaderId: userId, members: userId, webMonitorIds: ""}
+    const team = { leaderId: userId, members: userId, webMonitorIds: ""}
     TeamModel.createTeam(team);
     /* 判断参数是否合法 */
     if (data.nickname) {
