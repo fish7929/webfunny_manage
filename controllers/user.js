@@ -570,8 +570,8 @@ class UserController {
       return
     }
     // 创建团队
-    const team = { leaderId: userId, members: userId, webMonitorIds: ""}
-    TeamModel.createTeam(team);
+    // const team = { leaderId: userId, members: userId, webMonitorIds: ""}
+    // TeamModel.createTeam(team);
     /* 判断参数是否合法 */
     if (data.nickname) {
       let ret = await UserModel.createUser(data);
@@ -636,8 +636,8 @@ class UserController {
     }
 
     // 创建团队
-    const team = {teamName: company, leaderId: userId, members: userId, webMonitorIds: ""}
-    TeamModel.createTeam(team);
+    // const team = {teamName: company, leaderId: userId, members: userId, webMonitorIds: ""}
+    // TeamModel.createTeam(team);
 
     /* 判断参数是否合法 */
     if (data.nickname && data.emailName && data.password) {
