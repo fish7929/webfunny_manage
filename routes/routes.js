@@ -72,6 +72,7 @@ const createRoutes = (router) => {
     // 获取团队列表
     router.post("/getTeamList", TeamController.getTeamList)
     router.post("/getSimpleTeamList", TeamController.getSimpleTeamList)
+    router.post("/getTeamMemberByUser", TeamController.getTeamMemberByUser)
     router.post("/getTeamListWithoutToken", TeamController.getTeamListWithoutToken)
     router.post("/getTeams", TeamController.getTeams)
     router.post("/addTeamMember", TeamController.addTeamMember)

@@ -208,20 +208,26 @@ class TeamController {
             userType = param.userType
         }
         const res = await TeamModel.getTeamList(userId, userType)
-        for (let i = 0; i < res.length; i ++) {
-            const team = res[i]
-            const { leaderId, members, webMonitorIds } = team
-            const users = await UserModel.getUserListByMembers(members)
-            team.members = users
-            users.forEach((user) => {
-                if (user.userId == leaderId) {
-                    team.leader = user
-                    return false
-                }
-            })
-        }
+        // for (let i = 0; i < res.length; i ++) {
+        //     const team = res[i]
+        //     const { leaderId, members, webMonitorIds } = team
+        //     const users = await UserModel.getUserListByMembers(members)
+        //     team.members = users
+        //     users.forEach((user) => {
+        //         if (user.userId == leaderId) {
+        //             team.leader = user
+        //             return false
+        //         }
+        //     })
+        // }
         ctx.response.status = 200;
         ctx.body = statusCode.SUCCESS_200('success', res)
+    }
+    static async getTeamMemberByUser(ctx) {
+        const {members} = JSON.parse(ctx.request.body)
+        const users = await UserModel.getUserListByMembers(members)
+        ctx.response.status = 200;
+        ctx.body = statusCode.SUCCESS_200('success', users)
     }
 
     static async getTeamListWithoutToken(ctx) {
