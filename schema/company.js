@@ -1,8 +1,8 @@
 //delete//
 const moment = require('moment');
 //delete//
-const Project = function (sequelize, DataTypes) {
-  return sequelize.define('Team', {
+const Company = function (sequelize, DataTypes) {
+  return sequelize.define('Company', {
     // ID 主键
     id: {
       type: DataTypes.INTEGER,
@@ -10,35 +10,60 @@ const Project = function (sequelize, DataTypes) {
       allowNull: false,
       autoIncrement: true,
     },
+    // 公司所属人ID
+    ownerId: {
+      type: DataTypes.STRING(60),
+      allowNull: true,
+      field: 'ownerId'
+    },
     // 公司ID
     companyId: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.STRING(60),
       allowNull: true,
       field: 'companyId'
-    },// 团队名称
-    teamName: {
+    },
+    // 公司名称
+    companyName: {
       type: DataTypes.STRING(100),
       allowNull: true,
       field: 'teamName'
     },
-    // 团队成员
-    members: {
-      type: DataTypes.TEXT,
+    // 税号
+    taxNumber: {
+      type: DataTypes.STRING(100),
       allowNull: true,
-      field: 'members'
+      field: 'taxNumber'
     },
-
-    // 团队LeaderId
-    leaderId: {
+    // 公司地址
+    companyAddress: {
       type: DataTypes.STRING(200),
       allowNull: true,
-      field: 'leaderId'
+      field: 'companyAddress'
     },
-    // 项目ID
-    webMonitorIds: {
-      type: DataTypes.TEXT,
+    // 公司电话
+    companyPhone: {
+      type: DataTypes.STRING(30),
       allowNull: true,
-      field: 'webMonitorIds'
+      field: 'companyPhone'
+    },
+    // 开户银行
+    bankName: {
+      type: DataTypes.STRING(200),
+      allowNull: true,
+      field: 'bankName'
+    },
+    // 银行账号
+    bankNumber: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      field: 'bankNumber'
+    },
+    // 是否完善信息，0 未完善， 1 完善
+    isComplete: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      default: 0,
+      field: 'isComplete'
     },
     // 创建时间
     createdAt: {
@@ -63,5 +88,5 @@ const Project = function (sequelize, DataTypes) {
 
 }
 //exports//
-module.exports = Project
+module.exports = Company
 //exports//

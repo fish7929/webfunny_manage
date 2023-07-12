@@ -119,10 +119,20 @@ class UserController {
     } else {
       param = ctx.request.body
     }
-    const { userId } = param
+    const { userId, projectId = "" } = param
+    // 查询个人信息
     const res = await UserModel.getUserInfo(userId)
+    // 查询是不是团长
+    let leaderId = ""
+    if (projectId) {
+      const teamRes = await TeamModel.getTeamMembersByWebMonitorId(projectId)
+      if (teamRes && teamRes.length) {
+        leaderId = teamRes[0].leaderId
+      }
+    }
+    const finalRes = { ...res[0], isTeamLeader: leaderId === userId }
     ctx.response.status = 200;
-    ctx.body = statusCode.SUCCESS_200('查询信息列表成功！', res[0])
+    ctx.body = statusCode.SUCCESS_200('查询信息列表成功！', finalRes)
   }
 
   /**
