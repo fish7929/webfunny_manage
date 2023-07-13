@@ -81,6 +81,25 @@ class UserController {
   
   }
   /**
+   * 获取当前项目所在团队的用户列表
+   * @param ctx
+   * @returns {Promise.<void>}
+   */
+  static async getUserListForTeam(ctx) {
+    const {projectId} = JSON.parse(ctx.request.body)
+    // 根据项目id获取团队
+    const teamRes = await TeamModel.getTeamMembersByWebMonitorId(projectId)
+    if (!teamRes || !teamRes.length) {
+      ctx.response.status = 200;
+      ctx.body = statusCode.SUCCESS_200('查询信息列表成功！', [])
+      return
+    }
+    const { members } = teamRes[0]
+    const userRes = await UserModel.getUserListByMembers(members)
+    ctx.response.status = 200;
+    ctx.body = statusCode.SUCCESS_200('查询信息列表成功！', userRes)
+  }
+  /**
    * 获取信息列表
    * @param ctx
    * @returns {Promise.<void>}
