@@ -1,6 +1,7 @@
 //delete//
 const TeamModel = require('../modules/team')
 const UserModel = require('../modules/user')
+const CompanyModel = require('../modules/company')
 const UserTokenModel = require('../modules/UserToken')
 const MessageModel = require('../modules/message')
 const ConfigModel = require('../modules/config')
@@ -81,6 +82,20 @@ class UserController {
   
   }
   /**
+   * 获取当前项目所在团队的用户列表
+   * @param ctx
+   * @returns {Promise.<void>}
+   */
+  static async getUserListForTeam(ctx) {
+    const {projectId} = ctx.request.body
+    // 根据项目id获取团队
+    const teamRes = await TeamModel.getTeamMembersByWebMonitorId(projectId)
+    const { members } = teamRes[0]
+    const userRes = await UserModel.getUserListByMembers(members)
+    ctx.response.status = 200;
+    ctx.body = statusCode.SUCCESS_200('查询信息列表成功！', userRes)
+  }
+  /**
    * 获取信息列表
    * @param ctx
    * @returns {Promise.<void>}
@@ -119,10 +134,22 @@ class UserController {
     } else {
       param = ctx.request.body
     }
-    const { userId } = param
+    const { userId, projectId = "" } = param
+    // 查询个人信息
     const res = await UserModel.getUserInfo(userId)
+    // 查询是不是团长
+    let leaderId = ""
+    if (projectId) {
+      const teamRes = await TeamModel.getTeamMembersByWebMonitorId(projectId)
+      if (teamRes && teamRes.length) {
+        leaderId = teamRes[0].leaderId
+      }
+    }
+    // 查询公司信息
+    const company = await CompanyModel.getCompanyDetailByOwnerId(userId);
+    const finalRes = { ...res[0], isTeamLeader: leaderId === userId, company }
     ctx.response.status = 200;
-    ctx.body = statusCode.SUCCESS_200('查询信息列表成功！', res[0])
+    ctx.body = statusCode.SUCCESS_200('查询信息列表成功！', finalRes)
   }
 
   /**
@@ -305,31 +332,15 @@ class UserController {
         return
       }
       
-      // 判断token是否在数据库，且是否有效   开始
-      // const userInfo = await UserModel.getUserDetailByEmail(emailName)
-
-      // let isTokenValid = false
-      // const verify = jwt.verify
-      // const tokenRes = await UserTokenModel.checkTokenExist(userInfo.userId, webfunnyToken)
-      // if (tokenRes) {
-      //   // 如果token存在，则验证token是否合法
-      //   await verify(webfunnyToken, secret.sign, async (err, decode) => {
-      //     if (err) {
-      //       isTokenValid = false
-      //     } else {
-      //       isTokenValid = true
-      //     }
-      //   })
-      // }
-      // if (isTokenValid) {
-      //   ctx.response.status = 200;
-      //   ctx.body = statusCode.SUCCESS_200('登录成功', webfunnyToken)
-      //   return
-      // }
-      // 判断token是否在数据库，且是否有效   结束
+      // 获取公司ID
+      let companyId = ""
+      const companyRes = await CompanyModel.getCompanyDetailByOwnerId(userId)
+      if (companyRes) {
+        companyId = companyRes.companyId
+      }
 
       // 如果数据库里的token是无效的，则重新生成
-      const accessToken = jwt.sign({userId, userType, emailName, nickname}, secret.sign, {expiresIn: 33 * 24 * 60 * 60 * 1000})
+      const accessToken = jwt.sign({userId, companyId, userType, emailName, nickname}, secret.sign, {expiresIn: 33 * 24 * 60 * 60 * 1000})
       UserController.setValidateCode()
 
       // 生成好的token存入数据库，如果已存在userId，则更新

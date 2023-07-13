@@ -1,5 +1,6 @@
 require("colors")
 const UserController = require('../controllers/user')
+const CommonTableController = require('../controllers/commonTable')
 const ApplicationConfigController = require('../controllers/applicationConfig')
 const Utils = require('../util/utils');
 /**
@@ -35,5 +36,34 @@ module.exports = async () => {
         ApplicationConfigController.setInitSysConfigInfo("localhost:8011", "localhost:8010", "monitor")
         // 初始化埋点系统的域名配置信息
         ApplicationConfigController.setInitSysConfigInfo("localhost:8015", "localhost:8014", "event")
+
+        CommonTableController.createTable(0)
+        const startTime = new Date().getTime();
+        let count = 0;
+        const fixed = async () => {
+            count ++;
+            const tempDate = new Date()
+            const tempTime = new Date().getTime()
+            const wrongTime = startTime + count * 1000
+            var offset = tempTime - wrongTime;
+            var nextTime = 1000 - offset;
+            if (nextTime < 0) nextTime = 0;
+            const hourTimeStr = tempDate.Format("hh:mm:ss")
+            try {
+                // 凌晨0点01分开始创建当天的数据库表
+                if (hourTimeStr == "00:00:01") {
+                    CommonTableController.createTable(0)
+                } 
+                // 晚上11点55分开始创建第二天的数据库表
+                if (hourTimeStr == "23:55:01") {
+                    CommonTableController.createTable(1)
+                } 
+            } catch(e) {
+                log.printError("定时器执行报错：", e)
+            }
+            setTimeout(fixed, nextTime);
+        }
+        setTimeout(fixed, 1000);
+
     }, 6000)
 }

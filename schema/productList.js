@@ -1,8 +1,8 @@
 //delete//
 const moment = require('moment');
 //delete//
-const Company = function (sequelize, DataTypes) {
-  return sequelize.define('Company', {
+const ProductList = function (sequelize, DataTypes) {
+  return sequelize.define('ProductList', {
     // ID 主键
     id: {
       type: DataTypes.INTEGER,
@@ -10,60 +10,53 @@ const Company = function (sequelize, DataTypes) {
       allowNull: false,
       autoIncrement: true,
     },
-    // 公司所属人ID
-    ownerId: {
-      type: DataTypes.STRING(60),
-      allowNull: true,
-      field: 'ownerId'
-    },
     // 公司ID
     companyId: {
-      type: DataTypes.STRING(60),
+      type: DataTypes.STRING(50),
       allowNull: true,
       field: 'companyId'
     },
-    // 公司名称
-    companyName: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-      field: 'teamName'
-    },
-    // 税号
-    taxNumber: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-      field: 'taxNumber'
-    },
-    // 公司地址
-    companyAddress: {
-      type: DataTypes.STRING(200),
-      allowNull: true,
-      field: 'companyAddress'
-    },
-    // 公司电话
-    companyPhone: {
-      type: DataTypes.STRING(30),
-      allowNull: true,
-      field: 'companyPhone'
-    },
-    // 开户银行
-    bankName: {
-      type: DataTypes.STRING(200),
-      allowNull: true,
-      field: 'bankName'
-    },
-    // 银行账号
-    bankNumber: {
+    // 订单ID
+    orderId: {
       type: DataTypes.STRING(50),
       allowNull: true,
-      field: 'bankNumber'
+      field: 'orderId'
     },
-    // 是否完善信息，0 未完善， 1 完善
-    isComplete: {
+    // 产品类型：1 流量套餐，2 流量包
+    productType: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      default: 0,
-      field: 'isComplete'
+      field: 'productType'
+    },
+    // 已消耗流量
+    usedFlowCount: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+      field: 'usedFlowCount'
+    },
+    // 剩余流量
+    leftFlowCount: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+      field: 'leftFlowCount'
+    },
+    // 月份  2023-07
+    month: {
+      type: DataTypes.STRING(15),
+      allowNull: true,
+      field: 'month'
+    },
+    // 到期时间
+    endDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      field: 'endDate'
+    },
+    // 是否有效 0 无效， 1 有效
+    isValid: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      field: 'isValid'
     },
     // 创建时间
     createdAt: {
@@ -88,5 +81,5 @@ const Company = function (sequelize, DataTypes) {
 
 }
 //exports//
-module.exports = Company
+module.exports = ProductList
 //exports//

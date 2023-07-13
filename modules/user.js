@@ -65,7 +65,7 @@ class UserModel {
    * @returns {Promise<*>}
    */
   static async getUserForAdmin() {
-    let sql = "select * from User where userType='admin' or userType='superAdmin'"
+    let sql = "select id, companyId, userId, userType, phone, nickname, emailName, avatar, groupId, registerStatus, createdAt, updatedAt from User where userType='admin' or userType='superAdmin'"
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT})
   }
 
@@ -92,11 +92,11 @@ class UserModel {
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT})
   }
   static async getUserListByMembers(members) {
-    let sql = "select * from User where FIND_IN_SET(userId, '" + members + "')"
+    let sql = "select id, companyId, userId, userType, phone, nickname, emailName, avatar, groupId, registerStatus, createdAt, updatedAt  from User where FIND_IN_SET(userId, '" + members + "')"
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT})
   }
   static async getUserListByViewers(viewers) {
-    let sql = "select * from User where FIND_IN_SET(userId, '" + viewers + "')"
+    let sql = "select id, companyId, userId, userType, phone, nickname, emailName, avatar, groupId, registerStatus, createdAt, updatedAt from User where FIND_IN_SET(userId, '" + viewers + "')"
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT})
   }
 
@@ -211,7 +211,7 @@ class UserModel {
     } else if (email) {
       whereSql = `emailName='${email}'`
     }
-    let sql = `select * from User where ${whereSql}`
+    let sql = `select id, companyId, userId, userType, phone, nickname, emailName, avatar, groupId, registerStatus, createdAt, updatedAt from User where ${whereSql}`
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT})
   }
   /**

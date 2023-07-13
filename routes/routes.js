@@ -2,6 +2,8 @@ const ApplicationConfigController = require('../controllers/applicationConfig')
 const TeamController = require('../controllers/team')
 const UserController = require('../controllers/user')
 const UserTokenController = require('../controllers/UserToken')
+const CompanyController = require('../controllers/company')
+const FlowDataInfoController = require('../controllers/flowDataInfo')
 
 const createRoutes = (router) => {
     /**
@@ -11,6 +13,13 @@ const createRoutes = (router) => {
     router.post('/checkSsoToken', UserController.checkSsoToken);
     // 验证token
     router.post('/checkToken', UserTokenController.checkToken);
+
+
+    // 更新公司信息
+    router.post('/updateCompany', CompanyController.updateCompany);
+
+    // 存储流量信息
+    router.post('/createFlowData', FlowDataInfoController.createFlowDataInfo);
 
     /**
      * 登录相关逻辑
@@ -27,6 +36,8 @@ const createRoutes = (router) => {
     router.post('/getValidateCode', UserController.getValidateCode)
     // 获取用户列表
     router.post('/getUserList', UserController.getUserList);
+    // 获取当前项目所在团队的用户列表
+    router.post('/getUserListForTeam', UserController.getUserListForTeam);
     // 获取用户信息
     router.post('/getUserInfo', UserController.getUserInfo);
     // 获取简单的用户信息列表

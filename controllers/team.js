@@ -133,13 +133,6 @@ class TeamController {
                 }
             })
 
-            // const projects = await ProjectModel.getProjectListForStatus({webMonitorIds})
-            // const projectRes = await Utils.postJson(`http://${monitor.serverDomain}${PROJECT_API.MONITOR_PROJECT_SIMPLE_LIST_BY_WEBMONITOR_IDS}`, {webMonitorIds}).catch((e) => {
-            //     if (typeof e === "object") {
-            //         log.printError(JSON.stringify(e))
-            //     } 
-            // })
-
             const projectRes = await Utils.requestForTwoProtocol("post", `${monitor.serverDomain}${PROJECT_API.MONITOR_PROJECT_SIMPLE_LIST_BY_WEBMONITOR_IDS}`, {webMonitorIds})
 
             const projects = projectRes ? projectRes.data : []
@@ -153,11 +146,6 @@ class TeamController {
                 projectItem.viewerList = viewerList
             }
 
-            // const eventProjectRes = await Utils.postJson(`http://${event.serverDomain}${PROJECT_API.EVENT_PROJECT_SIMPLE_LIST_BY_WEBMONITOR_IDS}`, {webMonitorIds}).catch((e) => {
-            //     if (typeof e === "object") {
-            //         log.printError(JSON.stringify(e))
-            //     } 
-            // })
             const eventProjectRes = await Utils.requestForTwoProtocol("post", `${event.serverDomain}${PROJECT_API.EVENT_PROJECT_SIMPLE_LIST_BY_WEBMONITOR_IDS}`, {webMonitorIds})
 
             const eventProjects = eventProjectRes ? eventProjectRes.data : []
