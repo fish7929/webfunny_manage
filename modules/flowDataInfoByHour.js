@@ -1,18 +1,20 @@
 //delete//
+const Utils = require('../util/utils')
+const CommonSql = require('../util/commonSql')
 const db = require('../config/db')
 const Sequelize = db.sequelize;
 //delete//
-class FlowDataInfoModel {
+class FlowDataInfoByHourModel {
   /**
-   * 创建FlowDataInfo信息
+   * 创建FlowDataInfoByHour信息
    * @param data
    * @returns {Promise<*>}
    */
-  static async createFlowDataInfo(data) {
+  static async createFlowDataInfoByHour(data) {
     
     let keys = ""
     let values = ""
-    const keyArray = [`id`,`createdAt`,`updatedAt`,`companyId`,`projectId`,`flowType`,"dayName","hourName","flowCount"]
+    const keyArray = [`id`,`createdAt`,`updatedAt`,`companyId`,`projectId`, `flowOrigin`, `flowType`,"hourName","flowCount"]
     keyArray.forEach((key, index) => {
       if (index == keyArray.length - 1) {
         keys += "`" + key + "`"
@@ -48,16 +50,24 @@ class FlowDataInfoModel {
       }
     })
     const dateEnd = new Date().Format("yyyyMMdd")
-    const table = "FlowDataInfo" + dateEnd
+    const table = "FlowDataInfoByHour" + dateEnd
     let sql = "INSERT INTO " + table + " (" + keys + ") VALUES (" + values + ")"
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.INSERT })
   }
 
-  static async createFlowDataInfos(insertSql) {
+  static async createFlowDataInfosByHour(insertSql) {
     return await Sequelize.query(insertSql, { type: Sequelize.QueryTypes.INSERT})
+  }
+  /**
+   * 计算当天各种流量数据
+   */
+  static async calculateFlowCountByDay(dayIndex) {
+    const tableName = CommonSql.setTableName("FlowDataInfoByHour", dayIndex, "")
+    let sql = ` select companyId, projectId, flowType, sum(flowCount) as flowCount from ${tableName} group by companyId, projectId, flowType `
+    return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT})
   }
 
 }
 //exports//
-module.exports = FlowDataInfoModel
+module.exports = FlowDataInfoByHourModel
 //exports//

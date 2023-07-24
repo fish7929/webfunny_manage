@@ -22,25 +22,37 @@ const getTableProperty = (DataTypes) => {
       allowNull: true,
       field: 'projectId'
     },
+    // 月份的名称 2023-09
+    monthName: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+      field: 'monthName'
+    },
+    // 每天的名称 2023-09-01
+    dayName: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+      field: 'dayName'
+    },
+    // 流量来源, 套餐-subscribe，流量包-package
+    flowOrigin: {
+      type: DataTypes.STRING(12),
+      allowNull: true,
+      field: 'flowOrigin'
+    },
+    // 产品类型, 监控-monitor，埋点-event
+    productType: {
+      type: DataTypes.STRING(12),
+      allowNull: true,
+      field: 'productType'
+    },
     // 流量类型
     flowType: {
       type: DataTypes.STRING(30),
       allowNull: true,
       field: 'flowType'
     },
-    // 每天的名称 2019-06-28
-    dayName: {
-      type: DataTypes.STRING(10),
-      allowNull: true,
-      field: 'dayName'
-    },
-    // 每个小时的名称 06-28 22
-    hourName: {
-      type: DataTypes.STRING(15),
-      allowNull: true,
-      field: 'hourName'
-    },
-    // 每个小时的数量
+    // 每天的数量
     flowCount: {
       type: DataTypes.FLOAT(20),
       allowNull: true,
@@ -68,11 +80,11 @@ const getTableProperty = (DataTypes) => {
     freezeTableName: true,
     indexes: [
       {
-        name: "hourNameIndex",
+        name: "companyIdIndex",
         method: "BTREE",
         fields: [
           {
-            attribute: "hourName"
+            attribute: "companyId"
           }
         ]
       }

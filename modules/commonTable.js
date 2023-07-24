@@ -2,7 +2,8 @@
 const { DataTypes } = require("sequelize");
 const db = require('../config/db')
 const Sequelize = db.sequelize;
-const infoSchemaList = require("../schema/infoSchemaList")
+const infoSchemaList = require("../schema/infoSchemaListByDay")
+const infoSchemaListByYear = require("../schema/infoSchemaListByYear")
 //delete//
 class CommonTableModel {
   /**
@@ -21,6 +22,16 @@ class CommonTableModel {
   static async createInfoTable(dateStr) {
     infoSchemaList.forEach((schema) => {
       const SchemaModal = Sequelize.define(schema.name + dateStr, schema.fields, schema.index);
+      SchemaModal.sync({force: false});
+    })
+  }
+
+  /**
+   * 动态建表（分析类）,按年份建表
+   */
+  static async createInfoTableByYear(yearStr) {
+    infoSchemaListByYear.forEach((schema) => {
+      const SchemaModal = Sequelize.define(schema.name + yearStr, schema.fields, schema.index);
       SchemaModal.sync({force: false});
     })
   }

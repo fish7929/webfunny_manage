@@ -2,7 +2,9 @@ require("colors")
 const UserController = require('../controllers/user')
 const CommonTableController = require('../controllers/commonTable')
 const ApplicationConfigController = require('../controllers/applicationConfig')
+const TimerCalculateController = require('../controllers/timerCalculate')
 const Utils = require('../util/utils');
+const log = require("../config/log");
 /**
  * 定时任务
  */
@@ -48,8 +50,18 @@ module.exports = async () => {
             var offset = tempTime - wrongTime;
             var nextTime = 1000 - offset;
             if (nextTime < 0) nextTime = 0;
+            const hourMinuteStr = tempDate.Format("hh:mm")
             const hourTimeStr = tempDate.Format("hh:mm:ss")
+            const minuteTimeStr = tempDate.Format("mm:ss")
             try {
+
+                // 每个小时的第一秒执行
+                if (minuteTimeStr.substring(3) == "01") {
+                    // 每分钟更新流量信息
+                    TimerCalculateController.calculateCountByDay(0)
+                }
+
+
                 // 凌晨0点01分开始创建当天的数据库表
                 if (hourTimeStr == "00:00:01") {
                     CommonTableController.createTable(0)

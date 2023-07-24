@@ -9,8 +9,11 @@ class CommonTableController {
    * 创建数据库辩驳
    */
   static async createTable(timeSize = 0) {
-    const dateStr = Utils.addDays(timeSize).replace(/-/g, "")
+    const day = Utils.addDays(timeSize)
+    const dateStr = day.replace(/-/g, "")
     CommonTableModel.createInfoTable(dateStr)
+    const yearStr = day.substring(0, 4)
+    CommonTableModel.createInfoTableByYear(yearStr)
   }
 }
 //exports//

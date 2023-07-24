@@ -1,6 +1,6 @@
 const Router = require('koa-router')
 const Utils = require('../util/utils');
-const { createRoutes } = require("./routes");
+const { createRouter } = require("./routes");
 const timerTask = require("./timer");
 
 
@@ -37,7 +37,7 @@ const router = new Router({
     prefix: '/wfManage'
 })
 
-createRoutes(router)
+createRouter(router)
 timerTask()
 
 module.exports = router

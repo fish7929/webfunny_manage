@@ -1,8 +1,8 @@
 //delete//
 const moment = require('moment');
 //delete//
-const ProductList = function (sequelize, DataTypes) {
-  return sequelize.define('ProductList', {
+const getTableProperty = (DataTypes) => {
+  const fields = {
     // ID 主键
     id: {
       type: DataTypes.INTEGER,
@@ -16,47 +16,41 @@ const ProductList = function (sequelize, DataTypes) {
       allowNull: true,
       field: 'companyId'
     },
-    // 订单ID
-    orderId: {
+    // 项目ID
+    projectId: {
       type: DataTypes.STRING(50),
       allowNull: true,
-      field: 'orderId'
+      field: 'projectId'
     },
-    // 产品类型：1 流量套餐，2 流量包
+    // 流量来源, 套餐-subscribe，流量包-package
+    flowOrigin: {
+      type: DataTypes.STRING(12),
+      allowNull: true,
+      field: 'flowOrigin'
+    },
+    // 产品类型, 监控-monitor，埋点-event
     productType: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING(20),
       allowNull: true,
       field: 'productType'
     },
-    // 已消耗流量
-    usedFlowCount: {
-      type: DataTypes.BIGINT,
+    // 流量类型
+    flowType: {
+      type: DataTypes.STRING(30),
       allowNull: true,
-      field: 'usedFlowCount'
+      field: 'flowType'
     },
-    // 流量上限
-    maxFlowCount: {
-      type: DataTypes.BIGINT,
-      allowNull: true,
-      field: 'maxFlowCount'
-    },
-    // 月份  2023-07
-    month: {
+    // 每个小时的名称 06-28 22
+    hourName: {
       type: DataTypes.STRING(15),
       allowNull: true,
-      field: 'month'
+      field: 'hourName'
     },
-    // 到期时间
-    endDate: {
-      type: DataTypes.DATE,
+    // 每个小时的数量
+    flowCount: {
+      type: DataTypes.FLOAT(20),
       allowNull: true,
-      field: 'endDate'
-    },
-    // 是否有效 0 无效， 1 有效
-    isValid: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      field: 'isValid'
+      field: 'flowCount'
     },
     // 创建时间
     createdAt: {
@@ -72,14 +66,25 @@ const ProductList = function (sequelize, DataTypes) {
         return moment(this.getDataValue('updatedAt')).format('YYYY-MM-DD HH:mm:ss');
       }
     }
-  }, {
+  }
+  const fieldIndex = {
     // 如果为 true 则表的名称和 model 相同，即 user
     // 为 false MySQL创建的表名称会是复数 users
     // 如果指定的表名称本就是复数形式则不变
-    freezeTableName: true
-  })
-
+    freezeTableName: true,
+    indexes: [
+      {
+        name: "hourNameIndex",
+        method: "BTREE",
+        fields: [
+          {
+            attribute: "hourName"
+          }
+        ]
+      }
+    ]
+  }
+  return {fields, fieldIndex}
 }
-//exports//
-module.exports = ProductList
-//exports//
+
+module.exports = getTableProperty
