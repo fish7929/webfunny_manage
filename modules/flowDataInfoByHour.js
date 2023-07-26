@@ -63,7 +63,7 @@ class FlowDataInfoByHourModel {
    */
   static async calculateFlowCountByDay(dayIndex) {
     const tableName = CommonSql.setTableName("FlowDataInfoByHour", dayIndex, "")
-    let sql = ` select companyId, projectId, flowType, sum(flowCount) as flowCount from ${tableName} group by companyId, projectId, flowType `
+    let sql = ` select companyId, projectId, flowType, productType, sum(flowCount) as flowCount from ${tableName} group by companyId, projectId, flowType, productType `
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT})
   }
 
