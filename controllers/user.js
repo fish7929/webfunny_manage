@@ -108,9 +108,11 @@ class UserController {
     // 检查是否有管理员账号
     const adminData = await UserModel.checkAdminAccount();
     const adminUserCount = adminData[0].count * 1
+
+    const { registerEntry, resetPwdEntry } = accountInfo
   
     ctx.response.status = 200;
-    ctx.body = statusCode.SUCCESS_200('查询信息列表成功！', adminUserCount)
+    ctx.body = statusCode.SUCCESS_200('查询信息列表成功！', {adminUserCount,registerEntry, resetPwdEntry})
   }
 
   /**
@@ -911,13 +913,28 @@ class UserController {
       return
     }
     const { phone, email } = ssoInfo.data
+    const accessToken = UserController.createSsoToken(phone, email)
+    if (accessToken) {
+      ctx.response.status = 200;
+      ctx.body = statusCode.SUCCESS_200('success', accessToken)
+    } else {
+      ctx.response.status = 412;
+      ctx.body = statusCode.ERROR_412("登录失败，账号无效或不存在！", 0)
+    }
+    
+  }
+
+  /**
+   * sso登录成功，则根据手机号和邮箱生产token
+   * @param ctx
+   * @returns {Promise.<void>}
+   */
+  static async createSsoToken(phone, email) {
     // 检查phone, email是否在本系统中
     // 这里有隐患，不同账号使用了同一个手机号，有可能导致两个账号相互登录。 解决办法，在注册的时候限制邮箱和手机号都只能使用一次
     const existUsers = await UserModel.checkUserByPhoneOrEmail(phone, email)
     if (!existUsers || !existUsers.length) {
-      ctx.response.status = 500;
-      ctx.body = statusCode.ERROR_500('Token验证无效2！', 1)
-      return
+      return "登录失败，账号不存在"
     }
     const { userId, userType, emailName, nickname } = existUsers[0]
     // 账号存在，则说明账号有效，生成登录token
@@ -932,10 +949,8 @@ class UserController {
         userId, accessToken
       })
     }
-    ctx.response.status = 200;
-    ctx.body = statusCode.SUCCESS_200('Token验证通过3！', accessToken)
+    return accessToken
   }
-
 }
 //exports//
 module.exports = UserController
