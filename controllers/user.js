@@ -921,7 +921,10 @@ class UserController {
     // 这里有隐患，不同账号使用了同一个手机号，有可能导致两个账号相互登录。 解决办法，在注册的时候限制邮箱和手机号都只能使用一次
     const existUsers = await UserModel.checkUserByPhoneOrEmail(phone, email)
     if (!existUsers || !existUsers.length) {
-      return "登录失败，账号不存在"
+      return 0
+    }
+    if (existUsers.length > 1) {
+      return 0
     }
     const { userId, userType, emailName, nickname } = existUsers[0]
     // 账号存在，则说明账号有效，生成登录token

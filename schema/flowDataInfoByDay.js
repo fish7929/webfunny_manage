@@ -92,5 +92,6 @@ const getTableProperty = (DataTypes) => {
   }
   return {fields, fieldIndex}
 }
-
+//exports//
 module.exports = getTableProperty
+//exports//

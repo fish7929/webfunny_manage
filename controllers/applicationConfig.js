@@ -10,6 +10,7 @@ const log = require("../config/log")
 const fetch = require('node-fetch');
 const UserModel = require('../modules/user');
 const UserController = require('./user');
+const feishu = require('../sso/feishu');
 //delete//
 class ApplicationConfigController {
     /**
@@ -159,15 +160,15 @@ class ApplicationConfigController {
      */
     static async getOtherAccessTokenWithCode(ctx) {
         const { code } = JSON.parse(ctx.request.body)
-        const { getTokenConfig, getUserInfoConfig } = feiShuConfig
+        const { getTenantTokenConfig, getUserInfoConfig } = feiShuConfig
         const params = {
             grant_type: "authorization_code",
-            client_id: feiShuConfig.client_id,
-            client_secret: feiShuConfig.client_secret,
-            redirect_uri: feiShuConfig.redirect_uri,
+            client_id: feiShuConfig.appId,
+            client_secret: feiShuConfig.appSecret,
+            redirect_uri: feiShuConfig.redirectUri,
             code
         }
-        const tokenRes = await Utils.postForm(getTokenConfig.url, params).catch((e) => {
+        const tokenRes = await Utils.postForm(getTenantTokenConfig.url, params).catch((e) => {
             ctx.response.status = 412;
             ctx.body = statusCode.ERROR_412(e.msg, 0)
         })
@@ -224,10 +225,226 @@ class ApplicationConfigController {
             }
         } else {
             console.log(tokenRes)
-            log.printError(`获取第三方token失败（${getTokenConfig.url}）`, tokenRes)
+            log.printError(`获取第三方token失败（${getTenantTokenConfig.url}）`, tokenRes)
             ctx.response.status = 412;
             ctx.body = statusCode.ERROR_412(tokenRes.msg, tokenRes.msg)
         }
+    }
+
+    /**
+     * 获取飞书的签名
+     * @param ctx
+     * @returns {Promise.<void>}
+     */
+    static async getSignatureForFeiShu(ctx) {
+        const { getAppTokenConfig, getJsTicketConfig, redirectUri } = feiShuConfig
+        log.printInfo("飞书配置项：", JSON.stringify(feiShuConfig))
+        const params = {
+            app_id: feiShuConfig.appId,
+            app_secret: feiShuConfig.appSecret,
+        }
+        // 获取缓存里的token
+        const tokenInCache = global.monitorInfo.ssoForFeiShu.appToken
+        let cacheTokenValid = false
+        if (tokenInCache && tokenInCache.value) {
+            if (new Date().getTime() < tokenInCache.endTime) {
+                cacheTokenValid = true
+            }
+        }
+        let finalToken = ""
+        if (!cacheTokenValid) {
+            log.printInfo(getAppTokenConfig.url + " 接口参数：", JSON.stringify(params))
+            const tokenRes = await Utils.postJson(getAppTokenConfig.url, params).catch((e) => {
+                log.printInfo(getAppTokenConfig.url + " 接口报错 ：", e)
+                ctx.response.status = 412;
+                ctx.body = statusCode.ERROR_412(e.msg, 0)
+            })
+            log.printInfo(getAppTokenConfig.url + " 接口结果：", JSON.stringify(tokenRes))
+            if (tokenRes) {
+                const { app_access_token, expire } = tokenRes
+                finalToken = app_access_token
+                global.monitorInfo.ssoForFeiShu.appToken = {
+                    value: finalToken,
+                    endTime: new Date().getTime() + expire * 1000
+                }
+            }
+        } else {
+            finalToken = global.monitorInfo.ssoForFeiShu.appToken.value
+        }
+        if (!finalToken) {
+            ctx.response.status = 412;
+            ctx.body = statusCode.ERROR_412("token无效", 0)
+            return
+        }
+
+        const customHead = {
+            "Authorization": `Bearer ${finalToken}`,
+            "Content-Type": "application/json"
+        }
+        // 获取缓存里的ticket
+        const ticketInCache = global.monitorInfo.ssoForFeiShu.ticket
+        let cacheTicketValid = false
+        if (ticketInCache && ticketInCache.value) {
+            if (new Date().getTime() < ticketInCache.endTime) {
+                cacheTicketValid = true
+            }
+        }
+        let finalTicket = ""
+        if (!cacheTicketValid) {
+            log.printInfo(getJsTicketConfig.url + " 接口参数（header）：", JSON.stringify(customHead))
+            const ticketRes = await Utils.get(getJsTicketConfig.url, {}, {customHead}).catch((e) => {
+                log.printInfo(getJsTicketConfig.url + " 接口报错 ：", e)
+                ctx.response.status = 412;
+                ctx.body = statusCode.ERROR_412(e.msg, 0)
+            })
+            log.printInfo(getJsTicketConfig.url + " 接口结果：", JSON.stringify(ticketRes))
+            if (ticketRes) {
+                const { ticket, expire_in } = ticketRes.data
+                finalTicket = ticket
+                global.monitorInfo.ssoForFeiShu.ticket = {
+                    value: finalTicket,
+                    endTime: new Date().getTime() + expire_in * 1000
+                }
+            }
+        } else {
+            finalTicket = global.monitorInfo.ssoForFeiShu.ticket.value
+        }
+
+        if (!finalTicket) {
+            ctx.response.status = 412;
+            ctx.body = statusCode.ERROR_412(`ticket无效`, 0)
+            return
+        }
+        const nonceStr = Utils.getUuid().replace(/-/g, "")
+        const timestamp = new Date().getTime()
+        const url = redirectUri
+        const verifyStr = `jsapi_ticket=${finalTicket}&noncestr=${nonceStr}&timestamp=${timestamp}&url=${url}`
+        const signature = Utils.sha1(verifyStr)
+        ctx.response.status = 200;
+        ctx.body = statusCode.SUCCESS_200('success', {
+            appId: feiShuConfig.appId,
+            timestamp,
+            nonceStr,
+            signature
+        })
+    }
+
+    /**
+     * 根据code获取飞书的用户信息已经登录token
+     * @param ctx
+     * @returns {Promise.<void>}
+     */
+    static async getAccessTokenByCodeForFeiShu(ctx) {
+        const { code, grant_type } = Utils.parseQs(ctx.request.url)
+        const { getUserTokenConfig, getJsTicketConfig, getUserInfoConfig } = feiShuConfig
+        // 获取缓存里的token
+        const tokenInCache = global.monitorInfo.ssoForFeiShu.userToken
+        let cacheTokenValid = false
+        if (tokenInCache && tokenInCache.value) {
+            if (new Date().getTime() < tokenInCache.endTime) {
+                cacheTokenValid = true
+            }
+        }
+        let finalToken = ""
+        if (!cacheTokenValid) {
+            const customHead = {
+                "Authorization": `Bearer ${global.monitorInfo.ssoForFeiShu.appToken.value}`,
+                "Content-Type": "application/json"
+            }
+            log.printInfo(getUserTokenConfig.url + " 接口参数（header）：", JSON.stringify(customHead))
+            const tokenRes = await Utils.postJson(getUserTokenConfig.url, {code, grant_type}, {customHead}).catch((e) => {
+                log.printInfo(getUserTokenConfig.url + " 接口报错 ：", e)
+                ctx.response.status = 412;
+                ctx.body = statusCode.ERROR_412(e.msg, 0)
+            })
+            log.printInfo(getUserTokenConfig.url + " 接口结果：", JSON.stringify(tokenRes))
+            if (tokenRes) {
+                const { access_token, expires_in } = tokenRes.data
+                finalToken = access_token
+                global.monitorInfo.ssoForFeiShu.userToken = {
+                    value: finalToken,
+                    endTime: new Date().getTime() + expires_in * 1000
+                }
+            }
+        } else {
+            finalToken = global.monitorInfo.ssoForFeiShu.userToken.value
+        }
+        if (!finalToken) {
+            ctx.response.status = 412;
+            ctx.body = statusCode.ERROR_412("token无效", 0)
+            return
+        }
+
+        const customHead = {
+            "Authorization": `Bearer ${finalToken}`
+        }
+        log.printInfo(getUserInfoConfig.url + " 接口参数（header）：", JSON.stringify(customHead))
+        const userInfoRes = await Utils.get(getUserInfoConfig.url, {}, {customHead}).catch((e) => {
+            log.printInfo(getUserInfoConfig.url + " 接口报错 ：", e)
+            ctx.response.status = 412;
+            ctx.body = statusCode.ERROR_412(e.msg, 0)
+        })
+        log.printInfo(getUserInfoConfig.url + " 接口结果：", JSON.stringify(userInfoRes))
+        const { email = "", mobile = "", name = ""} = userInfoRes.data
+        const finalMobile = mobile.replace(/\+86/g, "")
+        if (email || finalMobile) {
+            // 检查账号是否存在
+            const existUsers = await UserModel.checkUserByPhoneOrEmail(finalMobile, email)
+            if (!existUsers || !existUsers.length) {
+                // 账号不存在，则创建一个
+                const nickname = name || "no name"
+                const emailName = email || finalMobile
+                const phone = finalMobile || email
+                const userData = {
+                    companyId: "1",
+                    nickname,
+                    emailName,
+                    phone,
+                    password: Utils.md5("123456"),
+                    userId: Utils.getUuid(),
+                    userType: "customer",
+                    registerStatus: 1,
+                    avatar: Math.floor(Math.random() * 6)
+                }
+                log.printInfo("用户不存在，即将创建：", JSON.stringify(userData))
+                let userRet = await UserModel.createUser(userData);
+                if (userRet && userRet.id) {
+                    const accessToken = await UserController.createSsoToken(phone, emailName)
+                    if (accessToken) {
+                        ctx.response.status = 200;
+                        ctx.body = statusCode.SUCCESS_200('success', {
+                            accessToken
+                        })
+                        log.printInfo("生成token：", JSON.stringify(accessToken))
+                    } else {
+                        log.printInfo("生成token失败：", JSON.stringify(accessToken))
+                        ctx.response.status = 412;
+                        ctx.body = statusCode.ERROR_412("登录失败，账号无效或不存在1！", 0)
+                    }
+                }
+            } else {
+                const emailName = email || finalMobile
+                const phone = finalMobile || email
+                log.printInfo("用户已存在，用户信息：", JSON.stringify({phone, emailName}))
+                const accessToken = await UserController.createSsoToken(phone, emailName)
+                if (accessToken) {
+                    ctx.response.status = 200;
+                    ctx.body = statusCode.SUCCESS_200('success', {
+                        accessToken
+                    })
+                    log.printInfo("生成token：", JSON.stringify(accessToken))
+                } else {
+                    log.printInfo("生成token失败：", JSON.stringify(accessToken))
+                    ctx.response.status = 412;
+                    ctx.body = statusCode.ERROR_412("登录失败，账号不存在或匹配到多条信息！", 0)
+                }
+            }
+        } else {
+            ctx.response.status = 412;
+            ctx.body = statusCode.ERROR_412("未获取到手机号或邮箱", 0)
+        }
+
+        
     }
 }
 //exports//
