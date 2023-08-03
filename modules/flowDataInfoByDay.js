@@ -66,7 +66,7 @@ class FlowDataInfoByDayModel {
     const table = "FlowDataInfoByDay" + dateEnd
     let sql = ""
     if (valueSql) {
-      sql = `INSERT INTO ${table} (companyId, projectId, flowOrigin, flowType, productType, monthName, dayName, flowCount, createdAt, updatedAt) 
+      sql = `INSERT INTO ${table} (companyId, projectId, projectName, flowOrigin, flowType, productType, monthName, dayName, flowCount, createdAt, updatedAt) 
       VALUES
       ${valueSql}
       `
@@ -80,9 +80,9 @@ class FlowDataInfoByDayModel {
   static handleFlowArray(flowData, dayName, monthName) {
     const createdAt = new Date().Format("yyyy-MM-dd hh:mm:ss")
     const updatedAt = createdAt
-    const { companyId, projectId, flowType, productType, flowCount } = flowData
+    const { companyId, projectId, projectName, flowType, productType, flowCount } = flowData
     const flowOrigin = "subscribe"
-    let sqlStr = `('${companyId}', '${projectId}', '${flowOrigin}', '${flowType}', '${productType}', '${monthName}', '${dayName}', ${flowCount}, '${createdAt}', '${updatedAt}'),`
+    let sqlStr = `('${companyId}', '${projectId}', '${projectName}', '${flowOrigin}', '${flowType}', '${productType}', '${monthName}', '${dayName}', ${flowCount}, '${createdAt}', '${updatedAt}'),`
     return sqlStr
   }
   static async getMonthFlowDataForCompanyId(companyId) {
