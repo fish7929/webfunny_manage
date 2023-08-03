@@ -5,6 +5,7 @@ const timerTask = require("./timer");
 
 
 global.monitorInfo = {
+    ssoForFeiShu: {},
     purchaseCodeProjectCount: 3,
     registerEmailCode: {},
     registerEmailCodeCheckError: {},

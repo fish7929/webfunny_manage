@@ -42,6 +42,8 @@
         "max": 100000
       }
     },
+    "registerEntry": false,
+    "resetPwdEntry": false,
     "ssoCheckUrl": "http://www.webfunny.cn/config/checkSsoToken",
     "activationRequired": false,
     "emailNeeded": {

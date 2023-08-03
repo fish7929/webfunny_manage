@@ -22,6 +22,12 @@ const getTableProperty = (DataTypes) => {
       allowNull: true,
       field: 'projectId'
     },
+    // 项目名称
+    projectName: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      field: 'projectName'
+    },
     // 月份的名称 2023-09
     monthName: {
       type: DataTypes.STRING(10),
@@ -92,5 +98,6 @@ const getTableProperty = (DataTypes) => {
   }
   return {fields, fieldIndex}
 }
-
+//exports//
 module.exports = getTableProperty
+//exports//

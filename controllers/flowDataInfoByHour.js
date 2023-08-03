@@ -23,7 +23,7 @@ class FlowDataInfoByHourController {
     const table = "FlowDataInfoByHour" + dateEnd
     let sql = ""
     if (valueSql) {
-      sql = `INSERT INTO ${table} (companyId, projectId, flowOrigin, productType, flowType, hourName, flowCount, createdAt, updatedAt)
+      sql = `INSERT INTO ${table} (companyId, projectId, projectName, flowOrigin, productType, flowType, hourName, flowCount, createdAt, updatedAt)
       VALUES
       ${valueSql}
       `
@@ -37,10 +37,10 @@ class FlowDataInfoByHourController {
   static handleFlowArray(flowData) {
     const createdAt = new Date().Format("yyyy-MM-dd hh:mm:ss")
     const updatedAt = createdAt
-    const { companyId, projectId, productType, flowType, hourName, flowCount } = flowData
+    const { companyId, projectId, projectName, productType, flowType, hourName, flowCount } = flowData
     // 如果流量套餐到期，则使用流量包
     const flowOrigin = "subscribe"
-    let sqlStr = `('${companyId}', '${projectId}', '${flowOrigin}', '${productType}', '${flowType}', '${hourName}', ${flowCount}, '${createdAt}', '${updatedAt}'),`
+    let sqlStr = `('${companyId}', '${projectId}', '${projectName}', '${flowOrigin}', '${productType}', '${flowType}', '${hourName}', ${flowCount}, '${createdAt}', '${updatedAt}'),`
     return sqlStr
   }
 }

@@ -22,6 +22,12 @@ const getTableProperty = (DataTypes) => {
       allowNull: true,
       field: 'projectId'
     },
+    // 项目名称
+    projectName: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      field: 'projectName'
+    },
     // 流量来源, 套餐-subscribe，流量包-package
     flowOrigin: {
       type: DataTypes.STRING(12),
@@ -86,5 +92,6 @@ const getTableProperty = (DataTypes) => {
   }
   return {fields, fieldIndex}
 }
-
+//exports//
 module.exports = getTableProperty
+//exports//

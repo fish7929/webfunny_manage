@@ -402,6 +402,26 @@ const Utils = {
     }
     return Object.assign({}, { headers })
   },
+
+  postForm(url, params = {}) {
+    return new Promise((resolve, reject) => {
+      fetch(url,{
+        method: 'POST',
+        body: Utils.qs(params).replace("?", ""),
+        headers:{
+            'Content-Type':'application/x-www-form-urlencoded;charset=utf-8',
+        }
+      }).then((data) => {
+        return data.text()
+      }).then((resStr) => {
+        const res = JSON.parse(resStr)
+        resolve(res)
+      }).catch((e) => {
+        reject(e)
+        log.printError(`接口报错（${url}）`, e)
+      })
+    })
+  },
   /**
    * 日志转JOSN
    *
@@ -552,6 +572,15 @@ const Utils = {
       }
       return protocolRes
     }
+  },
+  /**
+   * sha1加密
+   */
+  sha1(content) {
+    const { createHash } = crypto
+    const hash = createHash("sha1")
+    hash.update(content)
+    return hash.digest('hex')
   },
 }
 

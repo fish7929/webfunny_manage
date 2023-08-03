@@ -175,11 +175,14 @@ handleSchema(function(schemas) {
                         const Sequelize = db.sequelize;
                         const Utils = require('../util/utils');
                         const utils = require('../util/utils');
+                        const CommonSql = require('../util/commonSql')
                         const geoip = require('geoip-lite');
                         const log = require("../config/log");
                         const { UPLOAD_TYPE } = require('../config/consts')
                         const AccountConfig = require('../config/AccountConfig')
                         const { accountInfo } = AccountConfig
+                        const infoSchemaList = require("../schema/infoSchemaListByDay")
+                        const infoSchemaListByYear = require("../schema/infoSchemaListByYear")
                         const fs = require('fs');
                         const fetch = require('node-fetch');`
     fs.writeFile('/Users/jeffery/MonitorProjects/webfunny_manage/dist/models.js', importResult, { 'flag': 'a' }, function(err) {
@@ -227,6 +230,7 @@ handleSchema(function(schemas) {
                                         const getmac = require('getmac')
                                         const { spawn, exec, execFile } = require('child_process');
                                         const { accountInfo } = AccountConfig
+                                        const { feiShuConfig } = require("../sso")
                                         const Consts = require('../config/consts')
                                         const { PROJECT_API } = Consts
                                         const sendMq = accountInfo.messageQueue === true ? new RabbitMq() : null
