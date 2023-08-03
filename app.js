@@ -22,13 +22,13 @@ app.use(async (ctx, next) => {
     ctx.set("Content-Type", "application/json;charset=utf-8")
     ctx.set("Connection", "close")
     if (ctx.method == 'OPTIONS') {
-        ctx.body = 200; 
+        ctx.body = 200;
     } else {
         await next();
     }
 })
 // 登录校验
-app.use(auth())
+// app.use(auth())
 // middlewares
 app.use(bodyParser({
     enableTypes: ['json', 'form', 'text'],
