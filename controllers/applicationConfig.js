@@ -364,7 +364,7 @@ class ApplicationConfigController {
             "Authorization": `Bearer ${finalToken}`
         }
         log.printInfo(getUserInfoConfig.url + " 接口参数（header）：", JSON.stringify(userInfoCustomHead))
-        const userInfoRes = await Utils.get(getUserInfoConfig.url, {}, {userInfoCustomHead}).catch((e) => {
+        const userInfoRes = await Utils.get(getUserInfoConfig.url, {}, {customHead: userInfoCustomHead}).catch((e) => {
             log.printInfo(getUserInfoConfig.url + " 接口报错 ：", e)
             ctx.response.status = 412;
             ctx.body = statusCode.ERROR_412(e.msg, 0)
