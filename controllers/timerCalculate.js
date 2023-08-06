@@ -3,6 +3,7 @@
 // const statusCode = require('../util/status-code')
 const FlowDataInfoByHourModel = require('../modules/flowDataInfoByHour')
 const FlowDataInfoByDayModel = require('../modules/flowDataInfoByDay')
+const ProductModel = require('../modules/product')
 const Utils = require('../util/utils')
 const { FLOW_TYPE } = require('../config/consts')
 const log = require("../config/log");
@@ -18,8 +19,16 @@ class TimerCalculateController {
     const dayName = Utils.addDays(dayIndex)
     const monthName = dayName.substring(0, 7)
     // 归类计算总流量数据
-    await FlowDataInfoByHourModel.calculateFlowCountByDay(dayIndex).then((flowDataRes) => {
+    await FlowDataInfoByHourModel.calculateFlowCountByDay(dayIndex).then(async(flowDataRes) => {
+      // 存储当天的流量消耗
       FlowDataInfoByDayModel.createFlowDataInfosByDay(flowDataRes, dayName, monthName)
+      // 更新产品的消耗信息
+      const totalCountArr = flowDataRes.filter((item) => item.flowType === FLOW_TYPE.TOTAL_FLOW_COUNT)
+      const totalCount = totalCountArr[0].flowCount
+      const companyId = totalCountArr[0].companyId
+      const productRes = await ProductModel.getProductDetailByCompanyId(companyId)
+      const finalUsedFlowCount = totalCount + productRes.usedFlowCount
+      ProductModel.updateProduct(companyId, {usedFlowCount: finalUsedFlowCount})
     }).catch((e) => {
       log.printError("calculateFlowCountByDay 错误", e)
     })

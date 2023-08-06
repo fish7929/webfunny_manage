@@ -55,9 +55,9 @@ module.exports = async () => {
             const minuteTimeStr = tempDate.Format("mm:ss")
             try {
 
-                // 每分钟的第一秒，（应该每个小时的第一秒执行）
-                if (minuteTimeStr.substring(3) == "01") {
-                    // 每分钟更新流量信息
+                // 每个小时的第一秒执行
+                if (minuteTimeStr == "59:58") {
+                    // 更新每天的流量消耗
                     TimerCalculateController.calculateCountByDay(0)
                 }
 
