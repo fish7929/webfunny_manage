@@ -66,7 +66,7 @@ class FlowDataInfoByDayModel {
     const table = "FlowDataInfoByDay" + dateEnd
     let sql = ""
     if (valueSql) {
-      sql = `INSERT INTO ${table} (companyId, projectId, projectName, flowOrigin, flowType, productType, monthName, dayName, flowCount, createdAt, updatedAt) 
+      sql = `INSERT INTO ${table} (companyId, projectId, flowOrigin, flowType, monthName, dayName, flowCount, createdAt, updatedAt) 
       VALUES
       ${valueSql}
       `
@@ -80,16 +80,16 @@ class FlowDataInfoByDayModel {
   static handleFlowArray(flowData, dayName, monthName) {
     const createdAt = new Date().Format("yyyy-MM-dd hh:mm:ss")
     const updatedAt = createdAt
-    const { companyId, projectId, projectName, flowType, productType, flowCount } = flowData
+    const { companyId, projectId, flowType, flowCount } = flowData
     const flowOrigin = "subscribe"
-    let sqlStr = `('${companyId}', '${projectId}', '${projectName}', '${flowOrigin}', '${flowType}', '${productType}', '${monthName}', '${dayName}', ${flowCount}, '${createdAt}', '${updatedAt}'),`
+    let sqlStr = `('${companyId}', '${projectId}', '${flowOrigin}', '${flowType}', '${monthName}', '${dayName}', ${flowCount}, '${createdAt}', '${updatedAt}'),`
     return sqlStr
   }
   static async getMonthFlowDataForCompanyId(companyId) {
     const nowMonth = new Date().Format("yyyy-MM")
     const nowYear = new Date().getFullYear()
     const tableName = "FlowDataInfoByDay" + nowYear
-    let sql = `SELECT flowOrigin, sum(flowCount) as count, monthName FROM ${tableName} where companyId = '${companyId}' and monthName='${nowMonth}' group by flowOrigin`
+    let sql = `SELECT flowOrigin, sum(flowCount) as count, monthName FROM ${tableName} where companyId = '${companyId}' and flowType!='total_flow_count' and monthName='${nowMonth}' group by flowOrigin`
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT })
   }
   static async getTotalFlowDataForCompanyId(companyId) {
@@ -97,7 +97,7 @@ class FlowDataInfoByDayModel {
     let sql = ""
     for (let i = START_YEAR; i <= nowYear; i++) {
       const tableName = "FlowDataInfoByDay" + i
-      sql += `SELECT sum(flowCount) as count, min(dayName) as minDay  FROM ${tableName} where companyId = '${companyId}'`
+      sql += `SELECT sum(flowCount) as count, min(dayName) as minDay  FROM ${tableName} where companyId = '${companyId}' and flowType!='total_flow_count'`
       if (i < nowYear) {
         sql += `
           UNION
@@ -122,9 +122,9 @@ class FlowDataInfoByDayModel {
     for (let i = startYear; i <= endYear; i++) {
       const tableName = "FlowDataInfoByDay" + i
       if (startDate && endDate) {
-        sql += `SELECT dayName, sum(flowCount) as count FROM ${tableName} where companyId = '${companyId}' and dayName between '${startDate}' and '${endDate}' group by dayName`
+        sql += `SELECT dayName, sum(flowCount) as count FROM ${tableName} where companyId = '${companyId}' and flowType!='total_flow_count' and dayName between '${startDate}' and '${endDate}' group by dayName`
       } else {
-        sql += `SELECT dayName, sum(flowCount) as count FROM ${tableName} where companyId = '${companyId}' group by dayName`
+        sql += `SELECT dayName, sum(flowCount) as count FROM ${tableName} where companyId = '${companyId}' and flowType!='total_flow_count' group by dayName`
       }
       if (i < nowYear) {
         sql += `
@@ -150,9 +150,9 @@ class FlowDataInfoByDayModel {
     for (let i = startYear; i <= endYear; i++) {
       const tableName = "FlowDataInfoByDay" + i
       if (startDate && endDate) {
-        sql += `SELECT productType, sum(flowCount) as count FROM ${tableName} where companyId = '${companyId}' and dayName between '${startDate}' and '${endDate}' group by productType`
+        sql += `SELECT productType, sum(flowCount) as count FROM ${tableName} where companyId = '${companyId}' and flowType!='total_flow_count' and dayName between '${startDate}' and '${endDate}' group by productType`
       } else {
-        sql += `SELECT productType, sum(flowCount) as count FROM ${tableName} where companyId = '${companyId}' group by productType`
+        sql += `SELECT productType, sum(flowCount) as count FROM ${tableName} where companyId = '${companyId}' and flowType!='total_flow_count' group by productType`
       }
       if (i < nowYear) {
         sql += `
@@ -184,7 +184,7 @@ class FlowDataInfoByDayModel {
     console.log('projectName', projectName, _offset)
     const nowYear = new Date().getFullYear()
     let sql = ""
-    let nameCondition = projectName ? `and projectName = '${projectName}'` : ''
+    let nameCondition = projectName ? `and projectName like '%${projectName}%'` : ''
     for (let i = START_YEAR; i <= nowYear; i++) {
       const tableName = "FlowDataInfoByDay" + i
       sql += `SELECT sum(flowCount) as totalCount, 
@@ -195,10 +195,9 @@ class FlowDataInfoByDayModel {
               sum(if(flowType='perf_flow_count', flowCount, 0)) as perfCount, 
               sum(if(flowType='other_flow_count', flowCount, 0)) as otherCount, 
               sum(if(flowType='flow_package_count', flowCount, 0)) as flowCount, 
-              projectId, companyId, productType
-              FROM ${tableName} where companyId = '${companyId}' and productType = '${productType}' ${nameCondition} group by projectId LIMIT ${Number(_offset)},${Number(pageSize)} `
+              projectId, companyId, productType, projectName
+              FROM ${tableName} where companyId = '${companyId}' and productType = '${productType}' and flowType!='total_flow_count' ${nameCondition} group by projectId, projectName LIMIT ${Number(_offset)},${Number(pageSize)} `
 
-      // sql += `SELECT id, projectId, companyId, productType FROM ${tableName} where companyId = '${companyId}' and productType = '${productType}' LIMIT ${Number(_offset)},${Number(pageSize)}`
       if (i < nowYear) {
         sql += `
           UNION
@@ -218,7 +217,7 @@ class FlowDataInfoByDayModel {
   static async getFlowTotalCountForCompanyId(companyId, productType = 'monitor', projectName = '') {
     const nowYear = new Date().getFullYear()
     let sql = ""
-    let nameCondition = projectName ? `and projectName = '${projectName}'` : ''
+    let nameCondition = projectName ? `and projectName like '%${projectName}%'` : ''
     for (let i = START_YEAR; i <= nowYear; i++) {
       const tableName = "FlowDataInfoByDay" + i
       sql += `SELECT COUNT(DISTINCT projectId) as count FROM ${tableName} where companyId = '${companyId}' and productType = '${productType}' ${nameCondition} group by projectId`
