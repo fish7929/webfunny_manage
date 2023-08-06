@@ -104,7 +104,6 @@ class FlowDataInfoByDayModel {
         `
       }
     }
-    console.log('getTotalFlowDataForCompanyId-->', sql)
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT })
   }
   /**

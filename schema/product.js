@@ -1,8 +1,8 @@
 //delete//
 const moment = require('moment');
 //delete//
-const ProductList = function (sequelize, DataTypes) {
-  return sequelize.define('ProductList', {
+const Product = function (sequelize, DataTypes) {
+  return sequelize.define('Product', {
     // ID 主键
     id: {
       type: DataTypes.INTEGER,
@@ -81,5 +81,5 @@ const ProductList = function (sequelize, DataTypes) {
 
 }
 //exports//
-module.exports = ProductList
+module.exports = Product
 //exports//

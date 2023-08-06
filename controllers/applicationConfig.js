@@ -336,38 +336,23 @@ class ApplicationConfigController {
      */
     static async getAccessTokenByCodeForFeiShu(ctx) {
         const { code, grant_type } = Utils.parseQs(ctx.request.url)
-        const { getUserTokenConfig, getJsTicketConfig, getUserInfoConfig } = feiShuConfig
-        // 获取缓存里的token
-        const tokenInCache = global.monitorInfo.ssoForFeiShu.userToken
-        let cacheTokenValid = false
-        if (tokenInCache && tokenInCache.value) {
-            if (new Date().getTime() < tokenInCache.endTime) {
-                cacheTokenValid = true
-            }
-        }
+        const { getUserTokenConfig, getUserInfoConfig } = feiShuConfig
+
         let finalToken = ""
-        if (!cacheTokenValid) {
-            const customHead = {
-                "Authorization": `Bearer ${global.monitorInfo.ssoForFeiShu.appToken.value}`,
-                "Content-Type": "application/json"
-            }
-            log.printInfo(getUserTokenConfig.url + " 接口参数（header）：", JSON.stringify(customHead))
-            const tokenRes = await Utils.postJson(getUserTokenConfig.url, {code, grant_type}, {customHead}).catch((e) => {
-                log.printInfo(getUserTokenConfig.url + " 接口报错 ：", e)
-                ctx.response.status = 412;
-                ctx.body = statusCode.ERROR_412(e.msg, 0)
-            })
-            log.printInfo(getUserTokenConfig.url + " 接口结果：", JSON.stringify(tokenRes))
-            if (tokenRes) {
-                const { access_token, expires_in } = tokenRes.data
-                finalToken = access_token
-                global.monitorInfo.ssoForFeiShu.userToken = {
-                    value: finalToken,
-                    endTime: new Date().getTime() + expires_in * 1000
-                }
-            }
-        } else {
-            finalToken = global.monitorInfo.ssoForFeiShu.userToken.value
+        const customHead = {
+            "Authorization": `Bearer ${global.monitorInfo.ssoForFeiShu.appToken.value}`,
+            "Content-Type": "application/json"
+        }
+        log.printInfo(getUserTokenConfig.url + " 接口参数（header）：", JSON.stringify(customHead))
+        const tokenRes = await Utils.postJson(getUserTokenConfig.url, {code, grant_type}, {customHead}).catch((e) => {
+            log.printInfo(getUserTokenConfig.url + " 接口报错 ：", e)
+            ctx.response.status = 412;
+            ctx.body = statusCode.ERROR_412(e.msg, 0)
+        })
+        log.printInfo(getUserTokenConfig.url + " 接口结果：", JSON.stringify(tokenRes))
+        if (tokenRes) {
+            const { access_token } = tokenRes.data
+            finalToken = access_token
         }
         if (!finalToken) {
             ctx.response.status = 412;
@@ -375,11 +360,11 @@ class ApplicationConfigController {
             return
         }
 
-        const customHead = {
+        const userInfoCustomHead = {
             "Authorization": `Bearer ${finalToken}`
         }
-        log.printInfo(getUserInfoConfig.url + " 接口参数（header）：", JSON.stringify(customHead))
-        const userInfoRes = await Utils.get(getUserInfoConfig.url, {}, {customHead}).catch((e) => {
+        log.printInfo(getUserInfoConfig.url + " 接口参数（header）：", JSON.stringify(userInfoCustomHead))
+        const userInfoRes = await Utils.get(getUserInfoConfig.url, {}, {customHead: userInfoCustomHead}).catch((e) => {
             log.printInfo(getUserInfoConfig.url + " 接口报错 ：", e)
             ctx.response.status = 412;
             ctx.body = statusCode.ERROR_412(e.msg, 0)

@@ -5,6 +5,7 @@ const flowDataInfoByDayRouter = require('./flowDataInfoByDay')
 const teamRouter = require('./team')
 const userRouter = require('./user')
 const userTokenRouter = require('./userToken')
+const ProductRouter = require('./product')
 const ssoRouter = require('./sso')
 
 const createRouter = (router) => {
@@ -15,6 +16,7 @@ const createRouter = (router) => {
   teamRouter(router)
   userRouter(router)
   userTokenRouter(router)
+  ProductRouter(router)
   ssoRouter(router)
 }
 

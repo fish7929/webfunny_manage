@@ -73,7 +73,6 @@ class FlowDataInfoByDayController {
 
     // 获取总消耗流量
     const totalFlowRes = await FlowDataInfoByDayModel.getTotalFlowDataForCompanyId(companyId)
-    console.log('totalFlowRes', totalFlowRes)
     let totalFlowCount = 0
     let minDayArr = []
     if (totalFlowRes && totalFlowRes.length) {
