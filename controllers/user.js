@@ -900,7 +900,7 @@ class UserController {
       return
     }
     const { phone, email } = ssoInfo.data
-    const accessToken = UserController.createSsoToken(phone, email)
+    const accessToken = await UserController.createSsoToken(phone, email)
     if (accessToken) {
       ctx.response.status = 200;
       ctx.body = statusCode.SUCCESS_200('success', accessToken)
@@ -918,7 +918,6 @@ class UserController {
    */
   static async createSsoToken(phone, email) {
     // 检查phone, email是否在本系统中
-    // 这里有隐患，不同账号使用了同一个手机号，有可能导致两个账号相互登录。 解决办法，在注册的时候限制邮箱和手机号都只能使用一次
     const existUsers = await UserModel.checkUserByPhoneOrEmail(phone, email)
     if (!existUsers || !existUsers.length) {
       return 0
