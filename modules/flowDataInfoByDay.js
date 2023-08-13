@@ -107,7 +107,7 @@ class FlowDataInfoByDayModel {
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT })
   }
   /**
-  * 事件分布
+  * 事件趋势
   * @param {String} companyId 公司ID
   * @param {String} startDate 起始时间  '2022-07-28'
   * @param {String} endDate 截止时间 '2023-07-28'
@@ -165,8 +165,10 @@ class FlowDataInfoByDayModel {
   /**
   * 事件分布
   * @param {String} companyId 公司ID
-  * @param {String} startDate 起始时间
-  * @param {String} endDate 截止时间
+  * @param {String} productType 产品类型 监控 埋点
+  * @param {Number} page 页码 起始位为1
+  * @param {Number} pageSize 每页查询条数
+  * @param {String} projectName 项目名称
   * @returns 
   */
   static async getFlowTableListDataForCompanyId({ companyId, productType, page, pageSize, projectName }) {
@@ -207,7 +209,7 @@ class FlowDataInfoByDayModel {
   }
 
   /**
-  * 事件分布
+  * 获取流量流量列表总条数
   * @param {String} companyId 公司ID
   * @param {String} productType 产品类型 监控 埋点
   * @param {String} projectName 项目名称

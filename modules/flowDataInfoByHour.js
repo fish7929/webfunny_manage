@@ -11,10 +11,10 @@ class FlowDataInfoByHourModel {
    * @returns {Promise<*>}
    */
   static async createFlowDataInfoByHour(data) {
-    
+
     let keys = ""
     let values = ""
-    const keyArray = [`id`,`createdAt`,`updatedAt`,`companyId`,`projectId`, `flowOrigin`, `flowType`,"hourName","flowCount"]
+    const keyArray = [`id`, `createdAt`, `updatedAt`, `companyId`, `projectId`, `flowOrigin`, `flowType`, "hourName", "flowCount"]
     keyArray.forEach((key, index) => {
       if (index == keyArray.length - 1) {
         keys += "`" + key + "`"
@@ -28,7 +28,7 @@ class FlowDataInfoByHourModel {
         keys += "`" + key + "`, "
         let val = data[key]
         // createdAt， updatedAt 不能位于 keyArray的最后一个
-        switch(key) {
+        switch (key) {
           case "id":
             val = new Date().getTime() + Utils.getUuid()
             break
@@ -56,7 +56,7 @@ class FlowDataInfoByHourModel {
   }
 
   static async createFlowDataInfosByHour(insertSql) {
-    return await Sequelize.query(insertSql, { type: Sequelize.QueryTypes.INSERT})
+    return await Sequelize.query(insertSql, { type: Sequelize.QueryTypes.INSERT })
   }
   /**
    * 计算当天各种流量数据
@@ -64,9 +64,17 @@ class FlowDataInfoByHourModel {
   static async calculateFlowCountByDay(dayIndex) {
     const tableName = CommonSql.setTableName("FlowDataInfoByHour", dayIndex, "")
     let sql = ` select companyId, projectId, projectName, flowType, productType, sum(flowCount) as flowCount from ${tableName} group by companyId, projectId, projectName, flowType, productType `
-    return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT})
+    return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT })
   }
-
+  static async getHourFlowTrendDataForCompanyId(companyId, productType, projectIds) {
+    // const nowDay = new Date().Format("yyyyMMdd")
+    const nowDay = '20230806'
+    const tableName = "FlowDataInfoByHour" + nowDay
+    //把参数ids处理下添加'' 
+    const ids = projectIds.split(',').map(item => `'${item}'`).join(',')
+    let sql = `SELECT projectId, productType, sum(flowCount) as count, hourName FROM ${tableName} where companyId = '${companyId}' and flowType!='total_flow_count' and productType='${productType}' and projectId in (${ids}) group by hourName, projectId order by field(projectId, ${ids})`
+    return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT })
+  }
 }
 //exports//
 module.exports = FlowDataInfoByHourModel
