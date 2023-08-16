@@ -12,7 +12,7 @@ class FlowDataInfoByHourController {
     const param = ctx.request.body
     const { flowArray, dayName = "" } = param
     let valueSql = ""
-    for (let i = 0; i < flowArray.length; i ++) {
+    for (let i = 0; i < flowArray.length; i++) {
       const { flowCount } = flowArray[i]
       if (flowCount === 0) continue
       valueSql += FlowDataInfoByHourController.handleFlowArray(flowArray[i])
@@ -42,6 +42,27 @@ class FlowDataInfoByHourController {
     const flowOrigin = "subscribe"
     let sqlStr = `('${companyId}', '${projectId}', '${projectName}', '${flowOrigin}', '${productType}', '${flowType}', '${hourName}', ${flowCount}, '${createdAt}', '${updatedAt}'),`
     return sqlStr
+  }
+
+  /**
+   * 获取流量分布和趋信息
+   * @param {Object} ctx 请求参数
+   * @returns {Promise.<void>}
+   */
+  static async getHourFlowTrendData(ctx) {
+    const { companyId, projectIds = '', productType = 'monitor' } = ctx.wfParam
+    // 获取事件趋势信息
+    const flowTrend = await FlowDataInfoByHourModel.getHourFlowTrendDataForCompanyId(companyId, productType, projectIds)
+    console.log('getHourFlowTrendData--->', flowTrend)
+    const ids = projectIds.split(',')
+    let obj = {}
+    if (flowTrend && flowTrend.length) {
+      ids.forEach(id => {
+        obj[id] = flowTrend.filter(item => item.projectId == id)
+      });
+    }
+    ctx.response.status = 200;
+    ctx.body = statusCode.SUCCESS_200('查询信息列表成功！', obj)
   }
 }
 //exports//
