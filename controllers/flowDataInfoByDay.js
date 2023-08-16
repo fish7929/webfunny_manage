@@ -119,7 +119,10 @@ class FlowDataInfoByDayController {
       flowDistributeRes.forEach((item) => {
         const { productType, count } = item
         // 产品类型, 监控-monitor，埋点-event
-        flowDistribute.push({ productType, value: count, name: ProductTypeMap[productType] || 'unknown' })
+        //只是填入埋点和监控数据
+        if (ProductTypeMap[productType]) {
+          flowDistribute.push({ productType, value: count, name: ProductTypeMap[productType] })
+        }
       })
     }
 
