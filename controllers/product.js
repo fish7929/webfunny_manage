@@ -10,7 +10,7 @@ class ProductController {
      */
     static async create(ctx) {
         let req = ctx.request.body;
-        await ProductModel.createProduct(req);
+        const data = await ProductModel.createProduct(req);
         ctx.response.status = 200;
         ctx.body = statusCode.SUCCESS_200('创建信息成功', data)
     }
@@ -22,7 +22,7 @@ class ProductController {
     static async getProjectByCompanyIdForMonth(ctx) {
         const { companyId } = ctx.wfParam
         const month = new Date().Format("yyyy-MM")
-        await ProductModel.getProjectByCompanyIdForMonth(companyId, month);
+        const data = await ProductModel.getProjectByCompanyIdForMonth(companyId, month);
         ctx.response.status = 200;
         ctx.body = statusCode.SUCCESS_200('创建信息成功', data)
     }

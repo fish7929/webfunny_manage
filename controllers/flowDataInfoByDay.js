@@ -1,5 +1,6 @@
 //delete//
 const FlowDataInfoByDayModel = require('../modules/flowDataInfoByDay')
+const ProductModel = require('../modules/product')
 const statusCode = require('../util/status-code')
 const ProductTypeMap = {
   monitor: '监控',
@@ -53,21 +54,29 @@ class FlowDataInfoByDayController {
     curDay = curDay < 10 ? '0' + curDay : curDay //天补 0
     const dateInterval = `${nowYear}/${nowMonth}/1~${nowYear}/${nowMonth}/${curDay}`
     // 获取当月流量数据
-    const monthFlowRes = await FlowDataInfoByDayModel.getMonthFlowDataForCompanyId(companyId)
-    console.log('getTotalFlowData ---monthFlowRes', monthFlowRes)
+    // const monthFlowRes = await FlowDataInfoByDayModel.getMonthFlowDataForCompanyId(companyId)
+    // console.log('getTotalFlowData ---monthFlowRes', monthFlowRes)
+    // const packageRes = monthFlowRes && monthFlowRes.length ? monthFlowRes.find(item => item.flowOrigin === 'package') : null
+    // const subscribeRes = monthFlowRes && monthFlowRes.length ? monthFlowRes.find(item => item.flowOrigin === 'subscribe') : null
+
+    // // 已消耗流量 usedFlowCount  // 流量上限 maxFlowCount
+    const _month = date.Format("yyyy-MM")
+    //套餐数据
+    const subscribeProductRes = await ProductModel.getProjectByCompanyIdForMonth(companyId, _month)
+    console.log('subscribeProductRes-->', subscribeProductRes)
+    //流量包数据
+    const packageProductRes = await ProductModel.getProjectPackageByCompanyId(companyId)
+    console.log('packageProductRes-->', packageProductRes)
     //套餐-subscribe，流量包-package
-    const packageRes = monthFlowRes && monthFlowRes.length ? monthFlowRes.find(item => item.flowOrigin === 'package') : null
-    const subscribeRes = monthFlowRes && monthFlowRes.length ? monthFlowRes.find(item => item.flowOrigin === 'subscribe') : null
     const monthFlow = {
-      packageCount: packageRes ? packageRes.count : 0,
-      subscribeCount: subscribeRes ? subscribeRes.count : 0,
+      packageCount: packageProductRes && packageProductRes.length ? parseInt(packageProductRes[0].usedFlowCount) : 0,
+      subscribeCount: subscribeProductRes && subscribeProductRes.length ? parseInt(subscribeProductRes[0].usedFlowCount) : 0,
       dateInterval
     }
-    // let monthFlowCount = monthFlowRes && monthFlowRes.length ? monthFlowRes[0].count : 0
     // 获取当月剩余数据
     const monthLeftFlow = {
-      packageCount: packageRes ? packageRes.count : 0,
-      subscribeCount: subscribeRes ? subscribeRes.count : 0,
+      packageCount: packageProductRes && packageProductRes.length ? packageProductRes[0].maxFlowCount - packageProductRes[0].usedFlowCount : 0,
+      subscribeCount: subscribeProductRes && subscribeProductRes.length ? subscribeProductRes[0].maxFlowCount - subscribeProductRes[0].usedFlowCount : 0,
       dateInterval
     }
 
@@ -110,7 +119,10 @@ class FlowDataInfoByDayController {
       flowDistributeRes.forEach((item) => {
         const { productType, count } = item
         // 产品类型, 监控-monitor，埋点-event
-        flowDistribute.push({ productType, value: count, name: ProductTypeMap[productType] || 'unknown' })
+        //只是填入埋点和监控数据
+        if (ProductTypeMap[productType]) {
+          flowDistribute.push({ productType, value: count, name: ProductTypeMap[productType] })
+        }
       })
     }
 
