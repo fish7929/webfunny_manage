@@ -178,7 +178,7 @@ handleSchema(function(schemas) {
                         const CommonSql = require('../util/commonSql')
                         const geoip = require('geoip-lite');
                         const log = require("../config/log");
-                        const { UPLOAD_TYPE } = require('../config/consts')
+                        const { UPLOAD_TYPE, FLOW_TYPE } = require('../config/consts')
                         const AccountConfig = require('../config/AccountConfig')
                         const { accountInfo } = AccountConfig
                         const infoSchemaList = require("../schema/infoSchemaListByDay")
@@ -215,12 +215,10 @@ handleSchema(function(schemas) {
                                         const CusUtils = require('../util_cus')
                                         const log = require("../config/log");
                                         const statusCode = require('../util/status-code');
-                                        const { UPLOAD_TYPE } = require('../config/consts');
-                                        const { PROJECT_INFO } = require("../config/consts")
+                                        const { UPLOAD_TYPE, FLOW_TYPE, PROJECT_INFO, USER_INFO } = require('../config/consts');
                                         const fetch = require('node-fetch');
                                         const jwt = require('jsonwebtoken')
                                         const secret = require('../config/secret')
-                                        const { USER_INFO } = require('../config/consts')
                                         const xlsx = require('node-xlsx');
                                         const fs = require('fs');
                                         const nodemailer = require('nodemailer');

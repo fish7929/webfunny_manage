@@ -33,8 +33,8 @@ class TeamController {
     static async createNewTeam(ctx) {
         let param = JSON.parse(ctx.request.body);
         const { teamName } = param
-        const { userId } = ctx.user
-        const team = {teamName, leaderId: userId, members: userId, webMonitorIds: ""}
+        const { userId, companyId } = ctx.user
+        const team = {teamName, leaderId: userId, members: userId, webMonitorIds: "", companyId}
         const teamRes = await TeamModel.createTeam(team);
         ctx.response.status = 200;
         ctx.body = statusCode.SUCCESS_200('创建信息成功', teamRes)
