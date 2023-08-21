@@ -82,16 +82,17 @@ class FlowDataInfoByDayController {
 
     // 获取总消耗流量
     const totalFlowRes = await FlowDataInfoByDayModel.getTotalFlowDataForCompanyId(companyId)
+    console.log('totalFlowRes-->', totalFlowRes)
     let totalFlowCount = 0
     let minDayArr = []
-    if (totalFlowRes && totalFlowRes.length) {
+    if (totalFlowRes && totalFlowRes.length && totalFlowRes[0].minDay) {
       totalFlowRes.forEach((item) => {
         totalFlowCount += item.count
         minDayArr.push(item.minDay)
       })
     }
     //获取最小的日期
-    const minDay = (minDayArr.sort()[0]).replace(/-/g, '/')
+    const minDay = minDayArr.length ? (minDayArr.sort()[0]).replace(/-/g, '/') : '/'
     const totalFlow = {
       totalFlowCount,
       dateInterval: `${minDay}~${nowYear}/${nowMonth}/${curDay}`
