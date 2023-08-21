@@ -56,7 +56,7 @@ module.exports = async () => {
             try {
 
                 // 每个小时的第一秒执行
-                if (minuteTimeStr == "59:58") {
+                if (minuteTimeStr == "00:01") {
                     // 更新每天的流量消耗
                     TimerCalculateController.calculateCountByDay(0)
                 }

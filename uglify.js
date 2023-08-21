@@ -178,7 +178,7 @@ handleSchema(function(schemas) {
                         const CommonSql = require('../util/commonSql')
                         const geoip = require('geoip-lite');
                         const log = require("../config/log");
-                        const { UPLOAD_TYPE, FLOW_TYPE } = require('../config/consts')
+                        const { UPLOAD_TYPE, FLOW_TYPE, START_YEAR } = require('../config/consts')
                         const AccountConfig = require('../config/AccountConfig')
                         const { accountInfo } = AccountConfig
                         const infoSchemaList = require("../schema/infoSchemaListByDay")
@@ -231,6 +231,7 @@ handleSchema(function(schemas) {
                                         const { feiShuConfig } = require("../sso")
                                         const Consts = require('../config/consts')
                                         const { PROJECT_API } = Consts
+                                        const ProductTypeMap = { monitor: '监控', event: '埋点' }
                                         const sendMq = accountInfo.messageQueue === true ? new RabbitMq() : null
                                         `
                     let controllerResult = "const {"
