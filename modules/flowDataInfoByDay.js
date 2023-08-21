@@ -89,7 +89,7 @@ class FlowDataInfoByDayModel {
     const nowMonth = new Date().Format("yyyy-MM")
     const nowYear = new Date().getFullYear()
     const tableName = "FlowDataInfoByDay" + nowYear
-    let sql = `SELECT flowOrigin, sum(flowCount) as count, monthName FROM ${tableName} where companyId = '${companyId}' and flowType!='total_flow_count' and monthName='${nowMonth}' group by flowOrigin`
+    let sql = `SELECT flowOrigin, sum(flowCount) as count, monthName FROM ${tableName} where companyId = '${companyId}' and flowType = 'total_flow_count' and monthName='${nowMonth}' group by flowOrigin`
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT })
   }
   static async getTotalFlowDataForCompanyId(companyId) {
@@ -97,7 +97,7 @@ class FlowDataInfoByDayModel {
     let sql = ""
     for (let i = START_YEAR; i <= nowYear; i++) {
       const tableName = "FlowDataInfoByDay" + i
-      sql += `SELECT sum(flowCount) as count, min(dayName) as minDay  FROM ${tableName} where companyId = '${companyId}' and flowType!='total_flow_count'`
+      sql += `SELECT sum(flowCount) as count, min(dayName) as minDay  FROM ${tableName} where companyId = '${companyId}' and flowType = 'total_flow_count'`
       if (i < nowYear) {
         sql += `
           UNION
@@ -121,9 +121,9 @@ class FlowDataInfoByDayModel {
     for (let i = startYear; i <= endYear; i++) {
       const tableName = "FlowDataInfoByDay" + i
       if (startDate && endDate) {
-        sql += `SELECT dayName, sum(flowCount) as count FROM ${tableName} where companyId = '${companyId}' and flowType!='total_flow_count' and dayName between '${startDate}' and '${endDate}' group by dayName`
+        sql += `SELECT dayName, sum(flowCount) as count FROM ${tableName} where companyId = '${companyId}' and flowType='total_flow_count' and dayName between '${startDate}' and '${endDate}' group by dayName`
       } else {
-        sql += `SELECT dayName, sum(flowCount) as count FROM ${tableName} where companyId = '${companyId}' and flowType!='total_flow_count' group by dayName`
+        sql += `SELECT dayName, sum(flowCount) as count FROM ${tableName} where companyId = '${companyId}' and flowType='total_flow_count' group by dayName`
       }
       if (i < nowYear) {
         sql += `
@@ -149,9 +149,9 @@ class FlowDataInfoByDayModel {
     for (let i = startYear; i <= endYear; i++) {
       const tableName = "FlowDataInfoByDay" + i
       if (startDate && endDate) {
-        sql += `SELECT productType, sum(flowCount) as count FROM ${tableName} where companyId = '${companyId}' and flowType!='total_flow_count' and dayName between '${startDate}' and '${endDate}' group by productType`
+        sql += `SELECT productType, sum(flowCount) as count FROM ${tableName} where companyId = '${companyId}' and flowType='total_flow_count' and dayName between '${startDate}' and '${endDate}' group by productType`
       } else {
-        sql += `SELECT productType, sum(flowCount) as count FROM ${tableName} where companyId = '${companyId}' and flowType!='total_flow_count' group by productType`
+        sql += `SELECT productType, sum(flowCount) as count FROM ${tableName} where companyId = '${companyId}' and flowType='total_flow_count' group by productType`
       }
       if (i < nowYear) {
         sql += `
@@ -188,7 +188,7 @@ class FlowDataInfoByDayModel {
     let nameCondition = projectName ? `and projectName like '%${projectName}%'` : ''
     for (let i = START_YEAR; i <= nowYear; i++) {
       const tableName = "FlowDataInfoByDay" + i
-      sql += `SELECT sum(flowCount) as totalCount, 
+      sql += `SELECT sum(if(flowType='total_flow_count', flowCount, 0)) as totalCount, 
               sum(if(flowType='pv_flow_count', flowCount, 0)) as pvCount,  
               sum(if(flowType='http_flow_count', flowCount, 0)) as httpCount, 
               sum(if(flowType='behavior_flow_count', flowCount, 0)) as behaviorCount,  
@@ -197,7 +197,7 @@ class FlowDataInfoByDayModel {
               sum(if(flowType='other_flow_count', flowCount, 0)) as otherCount, 
               sum(if(flowType='flow_package_count', flowCount, 0)) as flowCount, 
               projectId, companyId, productType, projectName
-              FROM ${tableName} where companyId = '${companyId}' and productType = '${productType}' and flowType!='total_flow_count' ${nameCondition} group by projectId, projectName LIMIT ${Number(_offset)},${Number(pageSize)} `
+              FROM ${tableName} where companyId = '${companyId}' and productType = '${productType}' ${nameCondition} group by projectId, projectName LIMIT ${Number(_offset)},${Number(pageSize)} `
 
       if (i < nowYear) {
         sql += `
