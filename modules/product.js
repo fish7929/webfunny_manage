@@ -38,7 +38,7 @@ class ProductModel {
     })
   }
   static async updateProduct(companyId, data) {
-    await Team.update({
+    await Product.update({
       ...data
     }, {
       where: {
@@ -59,13 +59,39 @@ class ProductModel {
   }
 
   static async getProjectByCompanyIdForMonth(companyId, month) {
-    let sql = `select * from Product where companyId='${companyId}' and month='${month}'`
+    let sql = `select * from Product where companyId='${companyId}' and month='${month}' and isValid=1`
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT })
   }
   //1 流量套餐，2 流量包
   static async getProjectPackageByCompanyId(companyId) {
-    let sql = `select * from Product where companyId='${companyId}' and productType=2`
+    let sql = `select * from Product where companyId='${companyId}' and productType=2 and isValid=1`
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT })
+  }
+  //批量根据订单号查询查找有效的产品
+  static async batchQueryProductByOrderId(ids) {
+    return Product.findAll({
+      where: {
+        orderId: ids,
+        isValid: 1
+      },
+      attributes: ['orderId', 'month', 'usedFlowCount', 'maxFlowCount', 'companyId', 'productType']
+    });
+  }
+  // 批量增加数据
+  static async batchCreateProduct(data) {
+    return await Product.bulkCreate(data)
+  }
+
+  // 批量更新数据
+  static async batchUpdateProductByOrderId(ids, data) {
+    return await Product.update({
+      ...data
+    }, {
+      where: {
+        orderId: ids
+      },
+      fields: Object.keys(data)
+    })
   }
 }
 //exports//

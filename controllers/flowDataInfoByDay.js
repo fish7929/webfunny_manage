@@ -148,13 +148,13 @@ class FlowDataInfoByDayController {
     // 获取事件趋势信息
     const flowTableRes = await FlowDataInfoByDayModel.getFlowTableListDataForCompanyId({ companyId, productType, projectName, page, pageSize })
     console.log('flowTableRes--->', flowTableRes)
-    let list = []
-    if (flowTableRes && flowTableRes.length) {
-      list = flowTableRes.map((item, index) => {
-        //todo 需要查询接口获取状态
-        return { ...item, status: index % 2 === 0 ? 0 : 1 }
-      })
-    }
+    let list = flowTableRes && flowTableRes.length ? flowTableRes : []
+    // if (flowTableRes && flowTableRes.length) {
+    // list = flowTableRes.map((item, index) => {
+    //   //todo 需要查询接口获取状态
+    //   return { ...item, status: index % 2 === 0 ? 0 : 1 }
+    // })
+    // }
     ctx.response.status = 200;
     ctx.body = statusCode.SUCCESS_200('查询信息列表成功！', { list, total })
   }

@@ -3,6 +3,7 @@ const UserController = require('../controllers/user')
 const CommonTableController = require('../controllers/commonTable')
 const ApplicationConfigController = require('../controllers/applicationConfig')
 const TimerCalculateController = require('../controllers/timerCalculate')
+const ProductController = require('../controllers/product')
 const Utils = require('../util/utils');
 const log = require("../config/log");
 /**
@@ -25,12 +26,14 @@ module.exports = async () => {
         console.log("")
 
         // 服务器启动记录打点
-        Utils.postPoint("http://monitor.webfunny.cn/tracker/upEvent", { data: JSON.stringify({
-            pointId: "11",
-            projectId: "event1029",
-            yong_hu_id: Utils.getMac(),
-            shouQuanMaId: "apply-center",
-        })}).then((res) => {}).catch((e) => {})
+        Utils.postPoint("http://monitor.webfunny.cn/tracker/upEvent", {
+            data: JSON.stringify({
+                pointId: "11",
+                projectId: "event1029",
+                yong_hu_id: Utils.getMac(),
+                shouQuanMaId: "apply-center",
+            })
+        }).then((res) => { }).catch((e) => { })
 
         // 初始化登录验证码
         UserController.setValidateCode()
@@ -43,7 +46,7 @@ module.exports = async () => {
         const startTime = new Date().getTime();
         let count = 0;
         const fixed = async () => {
-            count ++;
+            count++;
             const tempDate = new Date()
             const tempTime = new Date().getTime()
             const wrongTime = startTime + count * 1000
@@ -61,16 +64,22 @@ module.exports = async () => {
                     TimerCalculateController.calculateCountByDay(0)
                 }
 
+                // 每10分钟执行一次
+                if (minuteTimeStr.substring(1) == "0:00") {
+                    // 更新每天的流量消耗
+                    console.log('插入产品信息开始--->', minuteTimeStr);
+                    ProductController.batchCreateOrUpdateProduct()
+                }
 
                 // 凌晨0点01分开始创建当天的数据库表
                 if (hourTimeStr == "00:00:01") {
                     CommonTableController.createTable(0)
-                } 
+                }
                 // 晚上11点55分开始创建第二天的数据库表
                 if (hourTimeStr == "23:55:01") {
                     CommonTableController.createTable(1)
-                } 
-            } catch(e) {
+                }
+            } catch (e) {
                 log.printError("定时器执行报错：", e)
             }
             setTimeout(fixed, nextTime);
