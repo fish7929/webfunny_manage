@@ -28,7 +28,8 @@ const PROJECT_API = {
 
     EVENT_PROJECT_SIMPLE_LIST_BY_WEBMONITOR_IDS: "/tracker/buryPointProject/projectSimpleListByWebmonitorIds",
     EVENT_ADD_VIEWERS: "/tracker/buryPointProject/addViewers",
-    EVENT_BASE_INFO: "/tracker/eventBaseInfo",
+
+    SAAS_PRODUCT_INFO: "/webfunny_manage/api/productInfo/get",
 }
 
 const START_YEAR = 2023
