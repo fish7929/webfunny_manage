@@ -28,7 +28,7 @@ app.use(async (ctx, next) => {
     }
 })
 // 登录校验
-// app.use(auth())
+app.use(auth())
 // middlewares
 app.use(bodyParser({
     enableTypes: ['json', 'form', 'text'],
