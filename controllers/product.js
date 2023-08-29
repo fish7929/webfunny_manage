@@ -58,21 +58,25 @@ class ProductController {
         let params = [] //需要新增的数据列表
         let allOrderIds = [] //当成新增或者失效的全部订单列表
         let ids = []  //失效订单列表
-        const newList = data.newPrductList || []  //新增列表
+        const newList = data.newProductList || []  //新增列表
         const expireList = data.expireOrderIds || [] //失效列表
         if (newList.length) {
             params = newList.map(prod => {
                 //SAAS_PACKAGE(60,"套餐"), SAAS_TRAFFIC_PACKET(61,"流量包"),
+                // SAAS_FREE_TRAFFIC_SUBSCRIPTION(60,"免费版流量订阅"),
+                // SAAS_TRAFFIC_SUBSCRIPTION(61,"流量订阅"),
+                // SAAS_TRAFFIC_PACKET(62,"流量包"),
                 const { productType, companyId, endDate, flowCount, orderId, month } = prod
-                const _productType = productType === 60 ? 1 : 2  //1 套餐， 2流量
+                // const _productType = productType === 60 ? 1 : 2  //1 套餐， 2流量
                 allOrderIds.push(orderId)
                 return {
                     companyId,
                     endDate,
                     orderId,
                     month,
+                    productType,
                     maxFlowCount: flowCount,
-                    productType: _productType,
+                    // productType: _productType,
                     usedFlowCount: 0,
                     isValid: 1
                 }
