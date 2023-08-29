@@ -87,10 +87,12 @@ class ProductController {
             //批量查询当次需要操作的所有订单id有效的产品
             const curAllProducts = await ProductModel.batchQueryProductByOrderId(allOrderIds);
             const curMonth = new Date().Format("yyyy-MM")
+            // console.log('curAllProducts', curAllProducts)
             //新增列表中剔除，数据库中已经存在有效的相同产品信息
             params = params.filter(param => {
                 const { orderId, month, companyId } = param
-                return !!curAllProducts.find(curProd => curProd.orderId === orderId && curProd.companyId === companyId && curProd.month === month)
+                //所有列表中， 存在当前有效产品剔除掉
+                return curAllProducts.length ? !(!!curAllProducts.find(curProd => curProd.orderId === orderId && curProd.companyId === companyId && curProd.month === month)) : true
             })
             if (expireList.length) {
                 //筛选出来当月失效的产品
@@ -107,6 +109,7 @@ class ProductController {
                     return obj
                 })
             }
+            // console.log("start 批量创建或者批量更新流量套餐产品 -->", ids, params);
             //批量更新，旧产品为失效状态
             if (ids.length) {
                 await ProductModel.batchUpdateProductByOrderId(ids, { isValid: 0 });
