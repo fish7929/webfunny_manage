@@ -68,6 +68,12 @@ module.exports = function () {
                     return
                 }
                 const { emailName, userId, userType, nickname, companyId } = decode
+
+                if (!companyId) {
+                    ctx.response.status = 401;
+                    ctx.body = statusCode.ERROR_401("没有公司ID，请重新登录");
+                    return
+                }
                 // 解密payload，获取用户名和ID
                 ctx.user = {
                     emailName, userId, userType, nickname, companyId

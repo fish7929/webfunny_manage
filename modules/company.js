@@ -17,8 +17,8 @@ class CompanyModel {
       ...data
     })
   }
-     /**
-   * 获取Company详情数据
+  /**
+   * 根据userId, 获取Company详情数据
    * @param userId  Company的userId
    * @returns {Promise<Model>}
    */
@@ -28,6 +28,22 @@ class CompanyModel {
         ownerId: userId,
       },
     })
+  }
+  /**
+   * 根据companyId, 获取Company详情数据
+   * @param userId  Company的userId
+   * @returns {Promise<Model>}
+   */
+  static async getCompanyInfo(companyId) {
+    return await Company.findOne({
+      where: {
+        companyId,
+      },
+    })
+  }
+  static async getCompanyList() {
+    const sql = "select companyId, companyName from Company"
+    return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT })
   }
 
   static async updateCompany(companyId, data) {

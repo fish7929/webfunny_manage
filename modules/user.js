@@ -73,18 +73,19 @@ class UserModel {
    * 获取User列表
    * @returns {Promise<*>}
    */
-  static async getUserListByAdmin(registerStatus) {
+  static async getUserListByAdmin(registerStatus, companyId) {
+    let companyIdSql = ` where companyId='${companyId}'`
     let registerStatusSql = ""
     switch(registerStatus) {
       case 0:
       case 1:
-          registerStatusSql = ` where registerStatus=${registerStatus} `
+          registerStatusSql = ` and registerStatus=${registerStatus} `
         break
       default:
         break
     }
 
-    let sql = "select id, userId, userType, nickname, emailName, avatar, registerStatus, groupId, createdAt, updatedAt from User " + registerStatusSql
+    let sql = "select id, userId, userType, nickname, emailName, avatar, registerStatus, groupId, createdAt, updatedAt from User " + companyIdSql + registerStatusSql
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT})
   }
   static async getUserInfo(userId) {

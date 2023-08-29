@@ -42,16 +42,16 @@
         "max": 100000
       }
     },
-    "registerEntry": false,
-    "resetPwdEntry": false,
+    "registerEntry": true,
+    "resetPwdEntry": true,
     "ssoCheckUrl": "http://www.webfunny.cn/config/checkSsoToken",
     "activationRequired": false,
     "emailNeeded": {
       "need": true,
-      "requireVerify": true
+      "requireVerify": false
     },
     "phoneNeeded": {
       "need": true,
-      "requireVerify": false
+      "requireVerify": true
     }
   }

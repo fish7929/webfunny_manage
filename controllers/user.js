@@ -167,14 +167,19 @@ class UserController {
   static async getUserListByAdmin(ctx) {
     let req = ctx.request.body
     const { status } = req
-    const { userType } = ctx.user
+    const { userType, companyId = "" } = ctx.user
     if (userType !== "admin" && userType !== "superAdmin") {
       ctx.response.status = 412;
       ctx.body = statusCode.ERROR_412('非管理员，无权调用此接口！');
       return
     }
+    if (!companyId) {
+      ctx.response.status = 401;
+      ctx.body = statusCode.ERROR_401("没有公司ID，请重新登录");
+      return
+    }
     if (req) {
-      const data = await UserModel.getUserListByAdmin(status);
+      const data = await UserModel.getUserListByAdmin(status, companyId);
       ctx.response.status = 200;
       ctx.body = statusCode.SUCCESS_200('查询信息列表成功！', data)
     } else {
