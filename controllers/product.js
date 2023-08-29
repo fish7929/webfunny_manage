@@ -58,7 +58,7 @@ class ProductController {
         let params = [] //需要新增的数据列表
         let allOrderIds = [] //当成新增或者失效的全部订单列表
         let ids = []  //失效订单列表
-        const newList = data.newPrductList || []  //新增列表
+        const newList = data.newProductList || []  //新增列表
         const expireList = data.expireOrderIds || [] //失效列表
         if (newList.length) {
             params = newList.map(prod => {
