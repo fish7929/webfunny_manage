@@ -116,11 +116,11 @@ class TeamController {
         }
     }
 
-    static async handleTeamList(userId, userType) {
+    static async handleTeamList(userId, userType, companyId) {
         const appConfig = await TeamController.handleAllApplicationConfig()
         const { monitor, event } = appConfig
 
-        const res = await TeamModel.getTeamList(userId, userType)
+        const res = await TeamModel.getTeamList(userId, userType, companyId)
         for (let i = 0; i < res.length; i ++) {
             const team = res[i]
             const { leaderId, members, webMonitorIds } = team
@@ -171,15 +171,24 @@ class TeamController {
     static async getTeamList(ctx) {
         let userId = ""
         let userType = ""
+        let companyId = ""
         if (ctx.user) {
             userId = ctx.user.userId
             userType = ctx.user.userType
+            companyId = ctx.user.companyId
         } else {
             const param = ctx.request.body
             userId = param.userId
             userType = param.userType
+            companyId = param.companyId
         }
-        const res = await TeamController.handleTeamList(userId, userType)
+        if (!companyId) {
+            ctx.response.status = 401;
+            ctx.body = statusCode.ERROR_401("没有公司ID，请重新登录");
+            return
+        }
+
+        const res = await TeamController.handleTeamList(userId, userType, companyId)
         ctx.response.status = 200;
         ctx.body = statusCode.SUCCESS_200('success', res)
     }
@@ -187,27 +196,24 @@ class TeamController {
     static async getSimpleTeamList(ctx) {
         let userId = ""
         let userType = ""
+        let companyId = ""
         if (ctx.user) {
             userId = ctx.user.userId
             userType = ctx.user.userType
+            companyId = ctx.user.companyId
         } else {
             const param = ctx.request.body
             userId = param.userId
             userType = param.userType
+            companyId = param.companyId
         }
-        const res = await TeamModel.getTeamList(userId, userType)
-        // for (let i = 0; i < res.length; i ++) {
-        //     const team = res[i]
-        //     const { leaderId, members, webMonitorIds } = team
-        //     const users = await UserModel.getUserListByMembers(members)
-        //     team.members = users
-        //     users.forEach((user) => {
-        //         if (user.userId == leaderId) {
-        //             team.leader = user
-        //             return false
-        //         }
-        //     })
-        // }
+        if (!companyId) {
+            ctx.response.status = 401;
+            ctx.body = statusCode.ERROR_401("没有公司ID，请重新登录");
+            return
+        }
+
+        const res = await TeamModel.getTeamList(userId, userType, companyId)
         ctx.response.status = 200;
         ctx.body = statusCode.SUCCESS_200('success', res)
     }
@@ -220,8 +226,13 @@ class TeamController {
 
     static async getTeamListWithoutToken(ctx) {
         const param = ctx.request.body
-        const { userId, userType } = param
-        const res = await TeamController.handleTeamList(userId, userType)
+        const { userId, userType, companyId } = param
+        if (!companyId) {
+            ctx.response.status = 401;
+            ctx.body = statusCode.ERROR_401("没有公司ID，请重新登录");
+            return
+        }
+        const res = await TeamController.handleTeamList(userId, userType, companyId)
         ctx.response.status = 200;
         ctx.body = statusCode.SUCCESS_200('success', res)
     }
@@ -229,16 +240,19 @@ class TeamController {
     static async getTeams(ctx) {
         let userId = ""
         let userType = ""
+        let companyId = ""
         if (ctx.user) {
             userId = ctx.user.userId
             userType = ctx.user.userType
+            companyId = ctx.user.companyId
         } else {
             const param = ctx.request.body
             userId = param.userId
             userType = param.userType
+            companyId = param.companyId
         }
         
-        const res = await TeamModel.getTeamList(userId, userType)
+        const res = await TeamModel.getTeamList(userId, userType, companyId)
         ctx.response.status = 200;
         ctx.body = statusCode.SUCCESS_200('success', res)
     }

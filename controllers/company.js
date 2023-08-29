@@ -18,10 +18,10 @@ class CompanyController {
             if (companyName && companyTax) {
                 isComplete = 1
             }
-            await CompanyModel.updateCompany(companyId, {
+            await CompanyModel.updateCompany(companyRes.companyId, {
                 ownerId: userId,
                 companyName,
-                taxNumber: companyTax,
+                companyTax,
                 companyAddress: companyAddress,
                 companyPhone: companyPhone,
                 bankName,
@@ -36,7 +36,7 @@ class CompanyController {
                 ownerId: userId,
                 companyId: Utils.getUuid(),
                 companyName,
-                taxNumber: companyTax,
+                companyTax,
                 companyAddress: companyAddress,
                 companyPhone: companyPhone,
                 bankName,
@@ -47,6 +47,29 @@ class CompanyController {
 
         ctx.response.status = 200;
         ctx.body = statusCode.SUCCESS_200('创建信息成功', 0)
+    }
+    /**
+     * 创建信息
+     * @param ctx
+     * @returns {Promise.<void>}
+     */
+    static async getCompanyInfo(ctx) {
+        const {companyId} = JSON.parse(ctx.request.body);
+        // 查询userId是否已经绑定公司了
+        const company = await CompanyModel.getCompanyInfo(companyId);
+        ctx.response.status = 200;
+        ctx.body = statusCode.SUCCESS_200('查询成功', company)
+    }
+    /**
+     * 获取公司列表
+     * @param ctx
+     * @returns {Promise.<void>}
+     */
+    static async getCompanyList(ctx) {
+        // 查询userId是否已经绑定公司了
+        const companyList = await CompanyModel.getCompanyList();
+        ctx.response.status = 200;
+        ctx.body = statusCode.SUCCESS_200('查询成功', companyList)
     }
 }
 //exports//

@@ -29,10 +29,10 @@ const Company = function (sequelize, DataTypes) {
       field: 'teamName'
     },
     // 税号
-    taxNumber: {
+    companyTax: {
       type: DataTypes.STRING(100),
       allowNull: true,
-      field: 'taxNumber'
+      field: 'companyTax'
     },
     // 公司地址
     companyAddress: {

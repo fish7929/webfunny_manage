@@ -66,12 +66,12 @@ class TeamModel {
     return true
   }
 
-  static async getTeamList(userId, userType) {
+  static async getTeamList(userId, userType, companyId) {
     let sql = ""
     if (userType === "admin" || userType === "superAdmin") {
-      sql = "select * from Team"
+      sql = `select * from Team where companyId='${companyId}'`
     } else {
-      sql = "select * from Team where members like '%" + userId + "%'"
+      sql = `select * from Team where companyId='${companyId}' and members like '%${userId}%'`
       // sql = "select * from Team"
     }
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT})
