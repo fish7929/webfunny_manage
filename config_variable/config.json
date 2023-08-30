@@ -48,10 +48,10 @@
     "activationRequired": false,
     "emailNeeded": {
       "need": true,
-      "requireVerify": false
+      "requireVerify": true
     },
     "phoneNeeded": {
-      "need": true,
-      "requireVerify": true
+      "need": false,
+      "requireVerify": false
     }
   }
