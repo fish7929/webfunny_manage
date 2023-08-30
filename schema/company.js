@@ -26,7 +26,7 @@ const Company = function (sequelize, DataTypes) {
     companyName: {
       type: DataTypes.STRING(100),
       allowNull: true,
-      field: 'teamName'
+      field: 'companyName'
     },
     // 税号
     companyTax: {
