@@ -131,7 +131,6 @@ class FlowDataInfoByDayModel {
         `
       }
     }
-    console.log('getFlowTrendDataForCompanyIdByDate-->', sql)
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT })
   }
   /**
@@ -182,7 +181,6 @@ class FlowDataInfoByDayModel {
     // FLOW_PACKAGE_COUNT: "flow_package_count", // 流量包
 
     const _offset = (page - 1) * pageSize
-    console.log('projectName', projectName, _offset)
     const nowYear = new Date().getFullYear()
     let sql = ""
     let nameCondition = projectName ? `and projectName like '%${projectName}%'` : ''

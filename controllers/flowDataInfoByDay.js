@@ -63,10 +63,10 @@ class FlowDataInfoByDayController {
     const _month = date.Format("yyyy-MM")
     //套餐数据
     const subscribeProductRes = await ProductModel.getProjectByCompanyIdForMonth(companyId, _month)
-    console.log('subscribeProductRes-->', subscribeProductRes)
+    // console.log('subscribeProductRes-->', subscribeProductRes)
     //流量包数据
     const packageProductRes = await ProductModel.getProjectPackageByCompanyId(companyId)
-    console.log('packageProductRes-->', packageProductRes)
+    // console.log('packageProductRes-->', packageProductRes)
     //套餐-subscribe，流量包-package
     const monthFlow = {
       packageCount: packageProductRes && packageProductRes.length ? parseInt(packageProductRes[0].usedFlowCount) : 0,
@@ -82,7 +82,7 @@ class FlowDataInfoByDayController {
 
     // 获取总消耗流量
     const totalFlowRes = await FlowDataInfoByDayModel.getTotalFlowDataForCompanyId(companyId)
-    console.log('totalFlowRes-->', totalFlowRes)
+    // console.log('totalFlowRes-->', totalFlowRes)
     let totalFlowCount = 0
     let minDayArr = []
     if (totalFlowRes && totalFlowRes.length && totalFlowRes[0].minDay) {
@@ -110,12 +110,12 @@ class FlowDataInfoByDayController {
     const { companyId, startDate = '', endDate = '' } = ctx.wfParam
     // 获取事件趋势信息
     const flowTrend = await FlowDataInfoByDayModel.getFlowTrendDataForCompanyIdByDate(companyId, startDate, endDate)
-    console.log('flowTrendRes--->', flowTrend)
+    // console.log('flowTrendRes--->', flowTrend)
 
     // 获取事件分布信息
     const flowDistributeRes = await FlowDataInfoByDayModel.getFlowDistributeDataForCompanyIdByDate(companyId, startDate, endDate)
     const flowDistribute = []
-    console.log('flowTrendRes--->', flowDistributeRes)
+    // console.log('flowTrendRes--->', flowDistributeRes)
     if (flowDistributeRes && flowDistributeRes.length) {
       flowDistributeRes.forEach((item) => {
         const { productType, count } = item
@@ -147,7 +147,7 @@ class FlowDataInfoByDayController {
     }
     // 获取事件趋势信息
     const flowTableRes = await FlowDataInfoByDayModel.getFlowTableListDataForCompanyId({ companyId, productType, projectName, page, pageSize })
-    console.log('flowTableRes--->', flowTableRes)
+    // console.log('flowTableRes--->', flowTableRes)
     let list = flowTableRes && flowTableRes.length ? flowTableRes : []
     // if (flowTableRes && flowTableRes.length) {
     // list = flowTableRes.map((item, index) => {

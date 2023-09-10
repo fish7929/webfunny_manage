@@ -53,7 +53,7 @@ class FlowDataInfoByHourController {
     const { companyId, projectIds = '', productType = 'monitor' } = ctx.wfParam
     // 获取事件趋势信息
     const flowTrend = await FlowDataInfoByHourModel.getHourFlowTrendDataForCompanyId(companyId, productType, projectIds)
-    console.log('getHourFlowTrendData--->', flowTrend)
+    // console.log('getHourFlowTrendData--->', flowTrend)
     const ids = projectIds.split(',')
     let obj = {}
     if (flowTrend && flowTrend.length) {
