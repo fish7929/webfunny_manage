@@ -707,12 +707,14 @@ class UserController {
             memberName: companyName || "",
             productType: 60,
             orderAmount: 0,
-            typeOfTax: "",
+            typeOfTax: "", // 是否收税点
             phone,
             name,
-            years: 1,
-            projectNum: 10,
-            flowCount: 100 * 10000,
+            months: 12,  // 默认12个月
+            projectNum: 10, // 项目个数
+            cardNum: 10, // 卡片数量
+            flowCount: 100 * 10000, // 100万流量
+            saveDays: 7,  // 存储周期
             companyId,
             channel: "saas"
           })
