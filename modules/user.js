@@ -64,8 +64,9 @@ class UserModel {
    * 获取管理员账号
    * @returns {Promise<*>}
    */
-  static async getUserForAdmin() {
-    let sql = "select id, companyId, userId, userType, phone, nickname, emailName, avatar, groupId, registerStatus, createdAt, updatedAt from User where userType='admin' or userType='superAdmin'"
+  static async getUserForAdmin(companyId) {
+    const companyIdSql = companyId ? ` and companyId='${companyId}' ` : ""
+    let sql = "select id, companyId, userId, userType, phone, nickname, emailName, avatar, groupId, registerStatus, createdAt, updatedAt from User where userType='admin' or userType='superAdmin' " + companyIdSql
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT})
   }
 
