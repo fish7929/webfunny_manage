@@ -6,6 +6,7 @@ const teamRouter = require('./team')
 const userRouter = require('./user')
 const userTokenRouter = require('./userToken')
 const ProductRouter = require('./product')
+const OrderRouter = require('./order')
 const ssoRouter = require('./sso')
 
 const createRouter = (router) => {
@@ -17,6 +18,7 @@ const createRouter = (router) => {
   userRouter(router)
   userTokenRouter(router)
   ProductRouter(router)
+  OrderRouter(router)
   ssoRouter(router)
 }
 

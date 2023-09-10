@@ -12,7 +12,7 @@ const fetch = require('node-fetch')
 const Utils = require('../util/utils');
 const CusUtils = require('../util_cus')
 const AccountConfig = require('../config/AccountConfig')
-const { USER_INFO } = require('../config/consts')
+const { USER_INFO, WEBFUNNY_CONFIG_URI } = require('../config/consts')
 const { accountInfo } = AccountConfig
 const log = require("../config/log")
 //delete//
@@ -337,18 +337,11 @@ class UserController {
     }
     const userData = await UserModel.getUserForPwd(data)
     if (userData) {
-      const { userId, userType, registerStatus, nickname } = userData
+      const { userId, companyId, userType, registerStatus, nickname } = userData
       if (registerStatus === 0) {
         ctx.response.status = 200;
         ctx.body = statusCode.SUCCESS_200('此账号尚未激活，请联系管理员激活！', 1)
         return
-      }
-      
-      // 获取公司ID
-      let companyId = ""
-      const companyRes = await CompanyModel.getCompanyDetailByOwnerId(userId)
-      if (companyRes) {
-        companyId = companyRes.companyId
       }
 
       // 如果数据库里的token是无效的，则重新生成
@@ -631,6 +624,134 @@ class UserController {
 
         ctx.response.status = 200;
         ctx.body = statusCode.SUCCESS_200('创建信息成功', 0)
+      }
+    } else {
+      ctx.response.status = 412;
+      ctx.body = statusCode.ERROR_412('创建信息失败，请求参数不能为空！')
+    }
+  }
+
+  /**
+   * 注册用户(saas)
+   * @param ctx
+   * @returns {Promise.<void>}
+   */
+  static async registerForSaas(ctx) {
+    const param = Utils.parseQs(ctx.request.url)
+    const { companyName, chooseCompanyId, name, email = "", phone = "", password, emailCode } = param
+    const registerType = param.registerType * 1
+    const decodePwd = Utils.b64DecodeUnicode(password).split("").reverse().join("")
+    const userId = Utils.getUuid()
+    let companyId = Utils.getUuid()
+    const avatar = Math.floor(Math.random() * 10)
+    // 注册用户是否需要激活
+    let registerStatus = accountInfo.activationRequired === true ? 0 : 1
+    let userType = "customer"
+    // 如果注册是超级管理员，则默认激活
+    if (registerType === 1) {
+      registerStatus = 1
+      userType = "superAdmin"
+      // 创建一个公司
+      await CompanyModel.createCompany({
+        ownerId: userId,
+        companyId,
+        companyName
+      })
+    } else {
+      companyId = chooseCompanyId
+    }
+    const data = {companyId, nickname: name, emailName: email, phone, password: Utils.md5(decodePwd), userId, userType, registerStatus, avatar}
+
+    // 记录注册邮箱
+    Utils.postJson(`${WEBFUNNY_CONFIG_URI}/config/recordEmail`, {phone, email, purchaseCode: accountInfo.purchaseCode, source: "center-register"}).catch((e) => {})
+    
+    const registerEmailCodeCheckError = global.monitorInfo.registerEmailCodeCheckError
+    if (registerEmailCodeCheckError[email] >= 3) {
+      ctx.response.status = 200;
+      ctx.body = statusCode.SUCCESS_200('验证码失败次数达到上限，请重新获取验证码！', 1)
+      return
+    }
+    const registerEmailCode = global.monitorInfo.registerEmailCode[email]
+    const emailCodeStr = emailCode.toLowerCase()
+    // 判断验证码是否正确或是否失效
+    if (!registerEmailCode || emailCodeStr != registerEmailCode.toLowerCase()) {
+      if (!registerEmailCodeCheckError[email]) {
+        registerEmailCodeCheckError[email] = 1
+      } else {
+        registerEmailCodeCheckError[email] ++
+      }
+      ctx.response.status = 200;
+      ctx.body = statusCode.SUCCESS_200('验证码不正确或已失效！', 1)
+      return
+    }
+    
+    // 判断用户名或者账号是否已经存在
+    let emailData = await UserModel.checkUserAccount(email)
+    if (emailData) {
+      ctx.response.status = 200;
+      ctx.body = statusCode.SUCCESS_200('邮箱已存在！', 1)
+      return
+    }
+    // 创建团队
+    // const team = { leaderId: userId, members: userId, webMonitorIds: ""}
+    // TeamModel.createTeam(team);
+    /* 判断参数是否合法 */
+    if (data.nickname) {
+      let ret = await UserModel.createUser(data);
+      if (ret && ret.id) {
+
+        // 后台生成订单
+        if (registerType === 1 && typeof CusUtils.onRegister === "function") {
+          CusUtils.onRegister({
+            email,
+            memberName: companyName || "",
+            productType: 60,
+            orderAmount: 0,
+            typeOfTax: "",
+            phone,
+            name,
+            years: 1,
+            projectNum: 10,
+            flowCount: 100 * 10000,
+            companyId,
+            channel: "saas"
+          })
+          ctx.response.status = 200;
+          ctx.body = statusCode.SUCCESS_200('账号创建成功', 0)
+        } else {
+          // 通知用户注册的账号密码
+          const title = "申请成功"
+          const content = "<p>用户你好!</p>" + 
+          "<p>你的账号已经申请成功，请联系管理员激活后，方可登录。</p>" +
+          "<p>账号：" + email + " 、 密码：" + decodePwd + "</p>" +
+          "<p>如有疑问，请联系作者，微信号：webfunny_2020</p>"
+          UserController.sendEmail(email, title, content)
+
+          // 获取管理员账号
+          const adminUser = await UserModel.getUserForAdmin(companyId)
+          const contentArray = JSON.stringify([`您好，用户【${name}】正在申请注册webfunny账号，请及时处理！`])
+          // 给管理员发送一条系统消息
+          MessageModel.createMessage({
+            userId: adminUser[0].userId,
+            title: "用户注册通知",
+            content: contentArray,
+            type: "sys",
+            isRead: 0,
+            link: `http://${accountInfo.localAssetsDomain}/webfunny_center/teamList.html`
+          })
+          // 给管理员发送一封邮件
+          const adminTitle = "用户注册通知"
+          const adminContent = `
+          <p>尊敬的管理员：</p>
+          <p>您好，用户【${email}】正在申请注册webfunny账号，请及时处理！</p>
+          <p>点击链接处理：http://${accountInfo.localAssetsDomain}/webfunny_center/userList.html</p>
+          <p>如有疑问，请联系作者，微信号：webfunny_2020</p>
+          `
+          UserController.sendEmail(adminUser[0].emailName, adminTitle, adminContent)
+
+          ctx.response.status = 200;
+          ctx.body = statusCode.SUCCESS_200('创建信息成功', 0)
+        }
       }
     } else {
       ctx.response.status = 412;

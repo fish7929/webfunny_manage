@@ -31,6 +31,7 @@ const PROJECT_API = {
 
     SAAS_PRODUCT_INFO: "/webfunny_manage/api/productInfo/get",
 }
+const WEBFUNNY_CONFIG_URI = "http://localhost:8012" // "http://www.webfunny.cn"
 
 const START_YEAR = 2023
 
@@ -39,5 +40,6 @@ module.exports = {
     USER_INFO,
     PROJECT_INFO,
     PROJECT_API,
+    WEBFUNNY_CONFIG_URI,
     START_YEAR
 }
