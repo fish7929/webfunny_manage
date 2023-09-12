@@ -215,7 +215,7 @@ handleSchema(function(schemas) {
                                         const CusUtils = require('../util_cus')
                                         const log = require("../config/log");
                                         const statusCode = require('../util/status-code');
-                                        const { UPLOAD_TYPE, FLOW_TYPE, PROJECT_INFO, USER_INFO } = require('../config/consts');
+                                        const { UPLOAD_TYPE, FLOW_TYPE, PROJECT_INFO, USER_INFO, WEBFUNNY_CONFIG_URI } = require('../config/consts');
                                         const fetch = require('node-fetch');
                                         const jwt = require('jsonwebtoken')
                                         const secret = require('../config/secret')
@@ -232,7 +232,6 @@ handleSchema(function(schemas) {
                                         const Consts = require('../config/consts')
                                         const { PROJECT_API } = Consts
                                         const ProductTypeMap = { monitor: '监控', event: '埋点' }
-                                        const sendMq = accountInfo.messageQueue === true ? new RabbitMq() : null
                                         `
                     let controllerResult = "const {"
                     models.forEach(element => {

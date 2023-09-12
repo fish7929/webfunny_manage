@@ -37,12 +37,13 @@ class ProductModel {
       },
     })
   }
-  static async updateProduct(companyId, data) {
+  static async updateProduct(companyId, month, data) {
     await Product.update({
       ...data
     }, {
       where: {
-        companyId
+        companyId,
+        month
       },
       fields: Object.keys(data)
     })

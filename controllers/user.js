@@ -144,6 +144,7 @@ class UserController {
     const { userId, projectId = "" } = param
     // 查询个人信息
     const res = await UserModel.getUserInfo(userId)
+    const { companyId } = res[0]
     // 查询是不是团长
     let leaderId = ""
     if (projectId) {
@@ -153,7 +154,7 @@ class UserController {
       }
     }
     // 查询公司信息
-    const company = await CompanyModel.getCompanyDetailByOwnerId(userId);
+    const company = await CompanyModel.getCompanyInfo(companyId);
     const finalRes = { ...res[0], isTeamLeader: leaderId === userId, company }
     ctx.response.status = 200;
     ctx.body = statusCode.SUCCESS_200('查询信息列表成功！', finalRes)
