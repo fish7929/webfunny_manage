@@ -64,7 +64,7 @@ class ProductModel {
   }
   //60, 61 流量套餐，62 流量包
   static async getProjectPackageByCompanyId(companyId) {
-    let sql = `select * from Product where companyId='${companyId}' and productType=62 and isValid=1`
+    let sql = `select * from Product where companyId='${companyId}' and productType between 70 and 79 and isValid=1`
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT })
   }
   //批量根据订单号查询查找有效的产品
