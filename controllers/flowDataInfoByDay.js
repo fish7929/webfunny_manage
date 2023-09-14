@@ -158,6 +158,26 @@ class FlowDataInfoByDayController {
     ctx.response.status = 200;
     ctx.body = statusCode.SUCCESS_200('查询信息列表成功！', { list, total })
   }
+  /**
+  * 获取流量列表信息
+  * @param {Object} ctx 请求参数
+  * @returns {Promise.<void>}
+  */
+  static async getFlowListByCompanyIdAndProjectIds(ctx) {
+    const { companyId, projectIds = '' } = ctx.wfParam
+    // 获取事件趋势信息
+    const flowList = await FlowDataInfoByDayModel.getFlowListByCompanyIdAndProjectIds(companyId, projectIds)
+    // console.log('getFlowListByCompanyIdAndProjectIds--->', flowList)
+    const ids = projectIds.split(',')
+    const data = flowList && flowList.length ? flowList : []
+    // if (flowList && flowList.length) {
+    //   ids.forEach(id => {
+    //     obj[id] = flowList.find(item => item.projectId == id)
+    //   });
+    // }
+    ctx.response.status = 200;
+    ctx.body = statusCode.SUCCESS_200('查询信息列表成功！', data)
+  }
 }
 //exports//
 module.exports = FlowDataInfoByDayController
