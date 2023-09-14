@@ -20,15 +20,20 @@ class TimerCalculateController {
     const monthName = dayName.substring(0, 7)
     // 归类计算总流量数据
     await FlowDataInfoByHourModel.calculateFlowCountByDay(dayIndex).then(async(flowDataRes) => {
+      if (!(flowDataRes && flowDataRes.length > 0)) return
       // 存储当天的流量消耗
       FlowDataInfoByDayModel.createFlowDataInfosByDay(flowDataRes, dayName, monthName)
       // 更新产品的消耗信息
       const totalCountArr = flowDataRes.filter((item) => item.flowType === FLOW_TYPE.TOTAL_FLOW_COUNT)
-      const totalCount = totalCountArr[0].flowCount
-      const companyId = totalCountArr[0].companyId
-      const productRes = await ProductModel.getProductDetailByCompanyId(companyId)
-      const finalUsedFlowCount = totalCount + productRes.usedFlowCount * 1
-      ProductModel.updateProduct(companyId, monthName, {usedFlowCount: finalUsedFlowCount})
+
+      for (let i = 0; i < totalCountArr.length; i ++) {
+        const { flowCount, companyId } = totalCountArr[0]
+        const totalCount = flowCount
+        const productRes = await ProductModel.getProductDetailByCompanyId(companyId)
+        const finalUsedFlowCount = totalCount + productRes.usedFlowCount * 1
+        console.log(companyId, monthName, totalCount, productRes.usedFlowCount)
+        ProductModel.updateProduct(companyId, monthName, {usedFlowCount: finalUsedFlowCount})
+      }
     }).catch((e) => {
       log.printError("calculateFlowCountByDay 错误", e)
     })

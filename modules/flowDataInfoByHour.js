@@ -2,6 +2,7 @@
 const Utils = require('../util/utils')
 const CommonSql = require('../util/commonSql')
 const db = require('../config/db')
+const { FLOW_TYPE } = require('../config/consts')
 const Sequelize = db.sequelize;
 //delete//
 class FlowDataInfoByHourModel {
@@ -64,6 +65,14 @@ class FlowDataInfoByHourModel {
   static async calculateFlowCountByDay(dayIndex) {
     const tableName = CommonSql.setTableName("FlowDataInfoByHour", dayIndex, "")
     let sql = ` select companyId, projectId, projectName, flowType, productType, sum(flowCount) as flowCount from ${tableName} group by companyId, projectId, projectName, flowType, productType `
+    return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT })
+  }
+  /**
+   * 计算当天各公司的总流量数据
+   */
+  static async calculateTotalFlowCountByDay(dayIndex) {
+    const tableName = CommonSql.setTableName("FlowDataInfoByHour", dayIndex, "")
+    let sql = ` select companyId, sum(flowCount) as flowCount from ${tableName} where flowType='${FLOW_TYPE.TOTAL_FLOW_COUNT}' group by companyId`
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT })
   }
   static async getHourFlowTrendDataForCompanyId(companyId, productType, projectIds) {
