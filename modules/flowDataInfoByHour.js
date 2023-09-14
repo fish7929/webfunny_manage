@@ -67,12 +67,11 @@ class FlowDataInfoByHourModel {
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT })
   }
   static async getHourFlowTrendDataForCompanyId(companyId, productType, projectIds) {
-    // const nowDay = new Date().Format("yyyyMMdd")
-    const nowDay = '20230806'
+    const nowDay = new Date().Format("yyyyMMdd")
     const tableName = "FlowDataInfoByHour" + nowDay
     //把参数ids处理下添加'' 
     const ids = projectIds.split(',').map(item => `'${item}'`).join(',')
-    let sql = `SELECT projectId, productType, sum(flowCount) as count, hourName FROM ${tableName} where companyId = '${companyId}' and flowType!='total_flow_count' and productType='${productType}' and projectId in (${ids}) group by hourName, projectId order by field(projectId, ${ids})`
+    let sql = `SELECT projectId, productType, sum(flowCount) as count, hourName FROM ${tableName} where companyId = '${companyId}' and flowType='total_flow_count' and productType='${productType}' and projectId in (${ids}) group by hourName, projectId order by field(projectId, ${ids})`
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT })
   }
 }
