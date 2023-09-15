@@ -1,6 +1,3 @@
-const nodemailer = require('nodemailer')
-const AccountConfig = require('../config/AccountConfig')
-const { accountInfo } = AccountConfig
 const Utils = require('../util/utils');
 const log = require("../config/log")
 const ProductController = require('../controllers/product')
@@ -9,7 +6,6 @@ const ProductController = require('../controllers/product')
  */
 const onRegister = (param) => {
     Utils.postJson("http://localhost:8012/config/createSaasOrderForRegister", param).then((res) => {
-        console.log(res)
         //立即同步产品信息
         ProductController.batchCreateOrUpdateProduct()
     }).catch((e) => {

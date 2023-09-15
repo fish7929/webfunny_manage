@@ -27,8 +27,8 @@ class TimerCalculateController {
       const totalCount = totalCountArr[0].flowCount
       const companyId = totalCountArr[0].companyId
       const productRes = await ProductModel.getProductDetailByCompanyId(companyId)
-      const finalUsedFlowCount = totalCount + productRes.usedFlowCount
-      ProductModel.updateProduct(companyId, {usedFlowCount: finalUsedFlowCount})
+      const finalUsedFlowCount = totalCount + productRes.usedFlowCount * 1
+      ProductModel.updateProduct(companyId, monthName, {usedFlowCount: finalUsedFlowCount})
     }).catch((e) => {
       log.printError("calculateFlowCountByDay 错误", e)
     })

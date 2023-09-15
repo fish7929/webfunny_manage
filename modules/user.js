@@ -90,7 +90,7 @@ class UserModel {
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT})
   }
   static async getUserInfo(userId) {
-    let sql = `select userId, userType, phone, nickname, emailName, avatar from User where userId='${userId}'`
+    let sql = `select companyId, userId, userType, phone, nickname, emailName, avatar from User where userId='${userId}'`
     return await Sequelize.query(sql, { type: Sequelize.QueryTypes.SELECT})
   }
   static async getUserListByMembers(members) {
