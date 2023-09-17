@@ -72,8 +72,7 @@ class ProductModel {
   static async batchQueryProductByOrderId(ids) {
     return Product.findAll({
       where: {
-        orderId: ids,
-        isValid: 1
+        orderId: ids
       },
       attributes: ['orderId', 'month', 'usedFlowCount', 'maxFlowCount', 'companyId', 'productType']
     });

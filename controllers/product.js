@@ -4,7 +4,7 @@ const statusCode = require('../util/status-code')
 const Utils = require('../util/utils');
 // const TeamController = require('./team')
 const Consts = require('../config/consts')
-const { PROJECT_API } = Consts
+const { PROJECT_API, PRODUCT_INFO_URI } = Consts
 //delete//
 class ProductController {
     /**
@@ -48,10 +48,8 @@ class ProductController {
      * @returns {Promise.<void>}
      */
     static async batchCreateOrUpdateProduct(ctx) {
-        // const appConfig = await TeamController.handleAllApplicationConfig()
-        // const { monitor, event } = appConfig
-        const productInfoHost = '139.224.102.107:8030'
-        const _url = `${productInfoHost}${PROJECT_API.SAAS_PRODUCT_INFO}`
+        // const productInfoHost = '139.224.102.107:8030'
+        const _url = `${PRODUCT_INFO_URI}${PROJECT_API.SAAS_PRODUCT_INFO}`
         const productRes = await Utils.requestForTwoProtocol("post", _url)
         // console.log('productRes', productRes)
         const { data = {} } = productRes
@@ -90,6 +88,7 @@ class ProductController {
         }
         if (allOrderIds.length) {
             // console.log("allOrderIds", allOrderIds)
+            //TODO 此处可能会有内存问题，一次查询太多订单号
             //批量查询当次需要操作的所有订单id有效的产品
             const curAllProducts = await ProductModel.batchQueryProductByOrderId(allOrderIds);
             const curMonth = new Date().Format("yyyy-MM")
