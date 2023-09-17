@@ -1,6 +1,8 @@
 //delete//
 const FlowDataInfoByHourModel = require('../modules/flowDataInfoByHour')
 const statusCode = require('../util/status-code')
+const cusUtil = require('../util_cus/index')
+const { initCurDayTrendData } = cusUtil
 //delete//
 class FlowDataInfoByHourController {
   /**
@@ -53,12 +55,26 @@ class FlowDataInfoByHourController {
     const { companyId, projectIds = '', productType = 'monitor' } = ctx.wfParam
     // 获取事件趋势信息
     const flowTrend = await FlowDataInfoByHourModel.getHourFlowTrendDataForCompanyId(companyId, productType, projectIds)
-    // console.log('getHourFlowTrendData--->', flowTrend)
     const ids = projectIds.split(',')
     let obj = {}
     if (flowTrend && flowTrend.length) {
       ids.forEach(id => {
-        obj[id] = flowTrend.filter(item => item.projectId == id)
+        //设置24小时初始值
+        let initArr = initCurDayTrendData({
+          count: 0,
+          productType,
+          projectId: id
+        }, 'hourName')
+        obj[id] = initArr.map(item => {
+          let temp = { ...item }
+          const { projectId, hourName } = item
+          //找到当前的小时和产品id一致的数据改变数量
+          const findOne = flowTrend.find(trendItem => trendItem.projectId === projectId && hourName === trendItem.hourName) || null
+          if (findOne) {
+            temp.count = findOne.count
+          }
+          return temp
+        })
       });
     }
     ctx.response.status = 200;

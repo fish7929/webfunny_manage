@@ -115,7 +115,6 @@ class FlowDataInfoByDayController {
     // 获取事件分布信息
     const flowDistributeRes = await FlowDataInfoByDayModel.getFlowDistributeDataForCompanyIdByDate(companyId, startDate, endDate)
     const flowDistribute = []
-    // console.log('flowTrendRes--->', flowDistributeRes)
     if (flowDistributeRes && flowDistributeRes.length) {
       flowDistributeRes.forEach((item) => {
         const { productType, count } = item
