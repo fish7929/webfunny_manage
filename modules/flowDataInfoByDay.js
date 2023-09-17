@@ -235,14 +235,17 @@ class FlowDataInfoByDayModel {
   * @param {String} projectIds 产品id集合
   * @returns 
   */
-  static async getFlowListByCompanyIdAndProjectIds(companyId, projectIds = '') {
+  static async getFlowListByCompanyIdAndProjectIds(companyId, projectIds = '', startDate = '', endDate = '') {
     const nowYear = new Date().getFullYear()
+    const startYear = startDate ? parseInt(startDate.substring(0, 4)) : nowYear
+    const endYear = endDate ? parseInt(endDate.substring(0, 4)) : nowYear
     let sql = ""
     //把参数ids处理下添加'' 
     const ids = projectIds.split(',').map(item => `'${item}'`).join(',')
-    for (let i = START_YEAR; i <= nowYear; i++) {
+    for (let i = startYear; i <= endYear; i++) {
       const tableName = "FlowDataInfoByDay" + i
-      sql += `SELECT sum(if(flowType='total_flow_count', flowCount, 0)) as totalCount, 
+      if (startDate && endDate) {
+        sql += `SELECT sum(if(flowType='total_flow_count', flowCount, 0)) as totalCount, 
               sum(if(flowType='pv_flow_count', flowCount, 0)) as pvCount,  
               sum(if(flowType='http_flow_count', flowCount, 0)) as httpCount, 
               sum(if(flowType='behavior_flow_count', flowCount, 0)) as behaviorCount,  
@@ -251,8 +254,19 @@ class FlowDataInfoByDayModel {
               sum(if(flowType='other_flow_count', flowCount, 0)) as otherCount, 
               sum(if(flowType='flow_package_count', flowCount, 0)) as flowCount, 
               projectId, companyId
-              FROM ${tableName} where companyId = '${companyId}' and projectId in (${ids}) group by projectId  order by field(projectId, ${ids})`
-
+              FROM ${tableName} where companyId = '${companyId}' and projectId in (${ids}) and dayName between '${startDate}' and '${endDate}' group by projectId  order by field(projectId, ${ids})`
+      } else {
+        sql += `SELECT sum(if(flowType='total_flow_count', flowCount, 0)) as totalCount, 
+        sum(if(flowType='pv_flow_count', flowCount, 0)) as pvCount,  
+        sum(if(flowType='http_flow_count', flowCount, 0)) as httpCount, 
+        sum(if(flowType='behavior_flow_count', flowCount, 0)) as behaviorCount,  
+        sum(if(flowType='error_flow_count', flowCount, 0)) as errorCount, 
+        sum(if(flowType='perf_flow_count', flowCount, 0)) as perfCount, 
+        sum(if(flowType='other_flow_count', flowCount, 0)) as otherCount, 
+        sum(if(flowType='flow_package_count', flowCount, 0)) as flowCount, 
+        projectId, companyId
+        FROM ${tableName} where companyId = '${companyId}' and projectId in (${ids}) group by projectId  order by field(projectId, ${ids})`
+      }
       if (i < nowYear) {
         sql += `
           UNION

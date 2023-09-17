@@ -115,7 +115,6 @@ class FlowDataInfoByDayController {
     // 获取事件分布信息
     const flowDistributeRes = await FlowDataInfoByDayModel.getFlowDistributeDataForCompanyIdByDate(companyId, startDate, endDate)
     const flowDistribute = []
-    // console.log('flowTrendRes--->', flowDistributeRes)
     if (flowDistributeRes && flowDistributeRes.length) {
       flowDistributeRes.forEach((item) => {
         const { productType, count } = item
@@ -164,9 +163,9 @@ class FlowDataInfoByDayController {
   * @returns {Promise.<void>}
   */
   static async getFlowListByCompanyIdAndProjectIds(ctx) {
-    const { companyId, projectIds = '' } = ctx.wfParam
+    const { companyId, projectIds = '', startDate = '', endDate = '' } = ctx.wfParam
     // 获取事件趋势信息
-    const flowList = await FlowDataInfoByDayModel.getFlowListByCompanyIdAndProjectIds(companyId, projectIds)
+    const flowList = await FlowDataInfoByDayModel.getFlowListByCompanyIdAndProjectIds(companyId, projectIds, startDate, endDate)
     // console.log('getFlowListByCompanyIdAndProjectIds--->', flowList)
     const ids = projectIds.split(',')
     const data = flowList && flowList.length ? flowList : []
