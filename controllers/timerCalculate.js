@@ -27,12 +27,20 @@ class TimerCalculateController {
       const totalCountArr = flowDataRes.filter((item) => item.flowType === FLOW_TYPE.TOTAL_FLOW_COUNT)
 
       for (let i = 0; i < totalCountArr.length; i ++) {
-        const { flowCount, companyId } = totalCountArr[0]
-        const totalCount = flowCount
-        const productRes = await ProductModel.getProductDetailByCompanyId(companyId)
-        const finalUsedFlowCount = totalCount + productRes.usedFlowCount * 1
-        console.log(companyId, monthName, totalCount, productRes.usedFlowCount)
-        ProductModel.updateProduct(companyId, monthName, {usedFlowCount: finalUsedFlowCount})
+        setTimeout(async() => {
+          const { flowCount, companyId } = totalCountArr[i]
+          const totalCount = flowCount
+          const productRes = await ProductModel.getProductDetailByCompanyId(companyId)
+          const { maxFlowCount, usedFlowCount } = productRes
+          const finalUsedFlowCount = totalCount + usedFlowCount * 1
+          // 如果流量超出了最大值，则产品失效
+          let isValid = finalUsedFlowCount >= maxFlowCount ? 0 : 1
+          console.log(companyId, monthName, totalCount, productRes.usedFlowCount, isValid)
+
+          // 查询出当前月份的产品信息
+          ProductModel.updateProduct(companyId, monthName, {usedFlowCount: finalUsedFlowCount, isValid})
+        }, i * 500)
+        
       }
     }).catch((e) => {
       log.printError("calculateFlowCountByDay 错误", e)
