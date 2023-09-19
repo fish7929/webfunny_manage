@@ -1,10 +1,8 @@
 //delete//
 const ProductModel = require('../modules/product')
 const statusCode = require('../util/status-code')
-const Utils = require('../util/utils');
-// const TeamController = require('./team')
-const Consts = require('../config/consts')
-const { PROJECT_API, PRODUCT_INFO_URI } = Consts
+const queryOrderProductList = require('../util_cus/queryOrderProductList')
+const log = require("../config/log")
 //delete//
 class ProductController {
     /**
@@ -45,19 +43,23 @@ class ProductController {
 
     /**
      * 批量创建新和更新产品
+     * @param newProductList  ex: [{productType, companyId, endDate, flowCount, orderId, month}, ....]
+     * @param expireOrderIds   ex: ["S230910G4SYRC7GHH", "S2309127AACKX2PPH", ....]
      * @returns {Promise.<void>}
      */
     static async batchCreateOrUpdateProduct(ctx) {
-        // const productInfoHost = '139.224.102.107:8030'
-        const _url = `${PRODUCT_INFO_URI}${PROJECT_API.SAAS_PRODUCT_INFO}`
-        const productRes = await Utils.requestForTwoProtocol("post", _url)
-        // console.log('productRes', productRes)
-        const { data = {} } = productRes
         let params = [] //需要新增的数据列表
         let allOrderIds = [] //当成新增或者失效的全部订单列表
         let ids = []  //失效订单列表
-        const newList = data.newProductList || []  //新增列表
-        const expireList = data.expireOrderIds || [] //失效列表
+        let newList = []  //新增列表
+        let expireList = [] //失效列表
+        try {
+            const { newProductList = [], expireOrderIds = [] } = await queryOrderProductList()
+            newList = newProductList;
+            expireList = expireOrderIds;
+        } catch (error) {
+            log.printError("获取订单列表失败", error)
+        }
         if (newList.length) {
             params = newList.map(prod => {
                 //订阅包  60-69
@@ -83,7 +85,7 @@ class ProductController {
             });
         }
         if (expireList.length) {
-            ids = data.expireOrderIds
+            ids = expireList
             allOrderIds = [...allOrderIds, ...ids]
         }
         if (allOrderIds.length) {

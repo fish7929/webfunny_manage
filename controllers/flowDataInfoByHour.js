@@ -1,8 +1,8 @@
 //delete//
 const FlowDataInfoByHourModel = require('../modules/flowDataInfoByHour')
 const statusCode = require('../util/status-code')
-const cusUtil = require('../util_cus/index')
-const { initCurDayTrendData } = cusUtil
+const Utils = require('../util/utils');
+const { initCurDayTrendData } = Utils
 //delete//
 class FlowDataInfoByHourController {
   /**

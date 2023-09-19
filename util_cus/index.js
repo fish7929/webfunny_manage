@@ -1,9 +1,9 @@
 const sendEmail = require("./sendEmail")
 const onRegister = require("./onRegister")
-const initCurDayTrendData = require("./initCurDayTrendData")
+const queryOrderProductList = require("./queryOrderProductList")
 
 module.exports = {
     sendEmail,
     onRegister,
-    initCurDayTrendData
+    queryOrderProductList
 }

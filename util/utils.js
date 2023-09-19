@@ -16,37 +16,37 @@ const Utils = {
   isObject(obj) {
     return (Object.prototype.toString.call(obj) == '[object Object]');
   },
-  guid: function() {
+  guid: function () {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });
   },
-  getMac: function() {
+  getMac: function () {
     let macAddress = ""
     try {
       macAddress = getmac.default()
-    } catch(e) {
+    } catch (e) {
       macAddress = "unknown"
     }
     return macAddress
   },
-  handleDateResult: function(result, scope = 30, endDate = new Date().Format("yyyy-MM-dd 00:00:00")) {
+  handleDateResult: function (result, scope = 30, endDate = new Date().Format("yyyy-MM-dd 00:00:00")) {
     function addDate(date, days) {
-      var d=new Date(date);
-      d.setDate(d.getDate()+days);
-      var month = d.getMonth()+1;
-      var m= month >= 10 ? month : '0' + month;
+      var d = new Date(date);
+      d.setDate(d.getDate() + days);
+      var month = d.getMonth() + 1;
+      var m = month >= 10 ? month : '0' + month;
       var day = d.getDate();
       var dayValue = day >= 10 ? day : '0' + day;
       // return d.getFullYear() + '-' + m + '-' + dayValue;
       return d.getFullYear() + '-' + m + '-' + dayValue;
     }
     var newResult = [];
-    for (var i = 0; i < scope; i ++) {
+    for (var i = 0; i < scope; i++) {
       var tempDate = addDate(new Date(endDate), -i);
-      var tempObj = {day: tempDate.substring(5, 10), count: 0, loadTime: 0, date: tempDate};
-      for (var j = 0; j < result.length; j ++) {
+      var tempObj = { day: tempDate.substring(5, 10), count: 0, loadTime: 0, date: tempDate };
+      for (var j = 0; j < result.length; j++) {
         if (tempDate === result[j].day) {
           tempObj.count = result[j].count;
           tempObj.loadTime = result[j].loadTime ? result[j].loadTime : 0;
@@ -57,10 +57,10 @@ const Utils = {
     }
     return newResult.reverse();
   },
-  handleHourResult: function(result, day = 0) {
+  handleHourResult: function (result, day = 0) {
     const dayStr = Utils.addDays(0 - day).substring(5)
     const newResult = []
-    for (let i = 0; i < 24; i ++) {
+    for (let i = 0; i < 24; i++) {
       let hourStr = ""
       if (i < 10) {
         hourStr = "0" + i
@@ -85,12 +85,12 @@ const Utils = {
         })
       }
     }
-    
+
     return newResult
   },
-  handleMinuteResult: function(result, hourName) {
+  handleMinuteResult: function (result, hourName) {
     const newResult = []
-    for (let i = 0; i < 60; i ++) {
+    for (let i = 0; i < 60; i++) {
       const tempMinute = hourName + ":" + (i < 10 ? "0" + i : i + "")
       const resArray = result.filter((item) => {
         return item.minutes === tempMinute
@@ -107,10 +107,10 @@ const Utils = {
         })
       }
     }
-    
+
     return newResult
   },
-  addDays: function(dayIn) {
+  addDays: function (dayIn) {
     var CurrentDate
     var date = new Date();
     var myDate = new Date(date.getTime() + dayIn * 24 * 60 * 60 * 1000);
@@ -157,7 +157,7 @@ const Utils = {
     const result = {}
     if (index === -1) return result
     const arr = s.substr(index + 1).split("&")
-    arr.forEach(function(item) {
+    arr.forEach(function (item) {
       const equals = item.split("=")
       let key = decodeURIComponent(equals[0])
       const val = decodeURIComponent(equals[1] || "")
@@ -186,30 +186,30 @@ const Utils = {
     const tempStr = s.replace(/ /g, "")
     const sArr = tempStr.split(";")
     const tempObj = {}
-    for (let i = 0; i < sArr.length; i ++) {
+    for (let i = 0; i < sArr.length; i++) {
       const key = sArr[i].split("=")[0]
       const value = sArr[i].split("=")[1]
       tempObj[key] = value
     }
     return tempObj
   },
-  b64EncodeUnicode: function(tempStr) {
+  b64EncodeUnicode: function (tempStr) {
     const str = encodeURIComponent(tempStr)
     // return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
     //   return String.fromCharCode("0x" + p1)
     // }))
     return base64encode(str)
   },
-  b64DecodeUnicode: function(str) {
+  b64DecodeUnicode: function (str) {
     try {
-      return decodeURIComponent(decodeURIComponent(myAtob(str).split('').map(function(c) {
+      return decodeURIComponent(decodeURIComponent(myAtob(str).split('').map(function (c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
       }).join('')));
     } catch (e) {
       return str
     }
   },
-  md5Encrypt: function(encryptString) {
+  md5Encrypt: function (encryptString) {
     // try {
     //   let hash = crypto.createHash('md5');
     //   return hash.update(encryptString).digest('base64');
@@ -218,20 +218,20 @@ const Utils = {
     // }
     return encryptString
   },
-  md5: function(encryptString) {
+  md5: function (encryptString) {
     try {
       let hash = crypto.createHash('md5');
       return hash.update(encryptString).digest('base64');
-    } catch(e) {
+    } catch (e) {
       console.log(e)
       return encryptString
     }
   },
-  md5Hex: function(encryptString) {
+  md5Hex: function (encryptString) {
     try {
       let hash = crypto.createHash('md5');
       return hash.update(encryptString).digest('hex');
-    } catch(e) {
+    } catch (e) {
       console.log(e)
       return encryptString
     }
@@ -244,29 +244,29 @@ const Utils = {
     return name + timeStamp
   },
   quickSortForObject(arr, key, begin, end) {
-    if(begin > end) return
+    if (begin > end) return
 
     let tempValue = arr[begin][key]
     let tmp = arr[begin]
     let i = begin
     let j = end
-    while(i != j){
-        while(arr[j][key] >= tempValue && j > i) {
-          j--
-        }
-        while(arr[i][key] <= tempValue && j > i) {
-          i++
-        }
-        if(j > i){
-            let t = arr[i];
-            arr[i] = arr[j];
-            arr[j] = t;
-        }
+    while (i != j) {
+      while (arr[j][key] >= tempValue && j > i) {
+        j--
+      }
+      while (arr[i][key] <= tempValue && j > i) {
+        i++
+      }
+      if (j > i) {
+        let t = arr[i];
+        arr[i] = arr[j];
+        arr[j] = t;
+      }
     }
     arr[begin] = arr[i];
     arr[i] = tmp;
-    Utils.quickSortForObject(arr, key, begin, i-1);
-    Utils.quickSortForObject(arr, key, i+1, end);
+    Utils.quickSortForObject(arr, key, begin, i - 1);
+    Utils.quickSortForObject(arr, key, i + 1, end);
   },
   toFixed(tempNum, s) {
     let num = tempNum
@@ -317,7 +317,7 @@ const Utils = {
   postPoint(url, params = {}, httpCustomerOperation = { isHandleResult: true }) {
     const method = "POST"
     const body = JSON.stringify(params)
-    const fetchParams = Object.assign({}, { method, body}, this.getHeadersJson())
+    const fetchParams = Object.assign({}, { method, body }, this.getHeadersJson())
     return Utils.handleFetchData(url, fetchParams, httpCustomerOperation)
   },
   handleFetchData(fetchUrl, fetchParams, httpCustomerOperation) {
@@ -405,11 +405,11 @@ const Utils = {
 
   postForm(url, params = {}) {
     return new Promise((resolve, reject) => {
-      fetch(url,{
+      fetch(url, {
         method: 'POST',
         body: Utils.qs(params).replace("?", ""),
-        headers:{
-            'Content-Type':'application/x-www-form-urlencoded;charset=utf-8',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
         }
       }).then((data) => {
         return data.text()
@@ -489,8 +489,8 @@ const Utils = {
    */
   splitTime(startDate, endDate, amount) {
     var startTime = new Date(startDate),
-	   endTime = new Date(endDate),
-    gap = (endTime - startTime) / amount;
+      endTime = new Date(endDate),
+      gap = (endTime - startTime) / amount;
     var temp = [];
     for (var i = 0; i < amount; i++) {
       startTime.setMilliseconds(startTime.getMilliseconds() + gap);
@@ -544,7 +544,7 @@ const Utils = {
   // 获取双协议结果
   async requestForTwoProtocol(method = "post", url, param) {
     const methodName = method === "post" ? "postJson" : ""
-    
+
     if (accountInfo.protocol) {
       let reqProtocol = `${accountInfo.protocol}://`
       // 如果用户指定了协议
@@ -559,10 +559,10 @@ const Utils = {
       let protocolRes = null
       protocolRes = await Utils[methodName](`http://${url}`, param).catch((e) => {
         if (typeof e === "object") {
-            log.printError(`http://${url} ->` + JSON.stringify(e))
+          log.printError(`http://${url} ->` + JSON.stringify(e))
         }
       })
-      
+
       if (!protocolRes) {
         protocolRes = await Utils[methodName](`https://${url}`, param).catch((e) => {
           if (typeof e === "object") {
@@ -582,6 +582,14 @@ const Utils = {
     hash.update(content)
     return hash.digest('hex')
   },
+  //创建24小时初始流量分布数据
+  initCurDayTrendData(initData, keyName) {
+    const DateTimeArr = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23']
+    const curDate = new Date().Format("yyyy-MM-dd")
+    return DateTimeArr.map(item => {
+      return { ...initData, [keyName]: `${curDate} ${item}` }
+    })
+  }
 }
 
 module.exports = Utils
