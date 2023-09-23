@@ -1,57 +1,57 @@
 {
-    "purchase": {
-      "purchaseCode": "",
-      "secretCode": ""
+  "purchase": {
+    "purchaseCode": "",
+    "secretCode": ""
+  },
+  "domain": {
+    "localServerDomain": "localhost:8009",
+    "localAssetsDomain": "localhost:8008",
+    "localServerPort": "8009",
+    "localAssetsPort": "8008",
+    "mainDomain": ""
+  },
+  "monitorDomain": {
+    "localServerDomain": "localhost:8011",
+    "localAssetsDomain": "localhost:8010"
+  },
+  "eventDomain": {
+    "localServerDomain": "localhost:8015",
+    "localAssetsDomain": "localhost:8014"
+  },
+  "mysqlConfig": {
+    "write": {
+      "ip": "81.68.82.247",
+      "port": "3306",
+      "dataBaseName": "webfunny_manage_db",
+      "userName": "root",
+      "password": "!sj@dd123j_"
     },
-    "domain": {
-      "localServerDomain": "localhost:8009",
-      "localAssetsDomain": "localhost:8008",
-      "localServerPort": "8009",
-      "localAssetsPort": "8008",
-      "mainDomain": ""
-    },
-    "monitorDomain": {
-      "localServerDomain": "localhost:8011",
-      "localAssetsDomain": "localhost:8010"
-    },
-    "eventDomain": {
-      "localServerDomain": "localhost:8015",
-      "localAssetsDomain": "localhost:8014"
-    },
-    "mysqlConfig": {
-        "write": {
-          "ip": "81.68.82.247",
-          "port": "3306",
-          "dataBaseName": "webfunny_db_center",
-          "userName": "root",
-          "password": "!sj@dd123j_"
-        },
-        "read": []
-    },
-    "email": {
-      "useCusEmailSys": false,
-      "emailUser": "",
-      "emailPassword": ""
-    },
-    "messageQueue": false,
-    "openMonitor": true,
-    "logSaveDays": 8,
-    "business": {
-      "userStayTimeScope": {
-        "min": 100,
-        "max": 100000
-      }
-    },
-    "registerEntry": true,
-    "resetPwdEntry": true,
-    "ssoCheckUrl": "http://www.webfunny.cn/config/checkSsoToken",
-    "activationRequired": false,
-    "emailNeeded": {
-      "need": true,
-      "requireVerify": true
-    },
-    "phoneNeeded": {
-      "need": false,
-      "requireVerify": false
+    "read": []
+  },
+  "email": {
+    "useCusEmailSys": false,
+    "emailUser": "",
+    "emailPassword": ""
+  },
+  "messageQueue": false,
+  "openMonitor": true,
+  "logSaveDays": 8,
+  "business": {
+    "userStayTimeScope": {
+      "min": 100,
+      "max": 100000
     }
+  },
+  "registerEntry": true,
+  "resetPwdEntry": true,
+  "ssoCheckUrl": "http://www.webfunny.cn/config/checkSsoToken",
+  "activationRequired": false,
+  "emailNeeded": {
+    "need": true,
+    "requireVerify": true
+  },
+  "phoneNeeded": {
+    "need": false,
+    "requireVerify": false
   }
+}
