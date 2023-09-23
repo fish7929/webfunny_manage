@@ -35,8 +35,8 @@ global.web_monitor_version = "1.0.0"
 global.BUILD_ENV = process.argv[3]
 
 const router = new Router({
-    // prefix: '/wfManage'
-    prefix: '/wfCenter'
+    prefix: '/wfManage'
+    // prefix: '/wfCenter'
 })
 
 createRouter(router)

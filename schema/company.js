@@ -26,6 +26,7 @@ const Company = function (sequelize, DataTypes) {
     companyName: {
       type: DataTypes.STRING(100),
       allowNull: true,
+      defaultValue: 'webfunny',
       field: 'companyName'
     },
     // 税号
